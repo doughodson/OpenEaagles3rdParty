@@ -31,131 +31,131 @@ modules\@./MDL@
  * @/F1@
  * $Revision: 25 $
  * $Log: /DlWin32/DRVLINX.H $
- * 
+ *
  * 25    8/09/01 8:51a Royf
  * Added note that multitasking flags are not used with 32-bit apps.
  * Added NO_INTERACTION flag for internal use.
- * 
+ *
  * 24    7/18/01 4:41p Royf
  * Added  DL_INTERNAL_FLAGS and DL_WDM_FLAG for DevFlags.
- * 
+ *
  * 23    9/22/99 5:24p Royf
  * Added An_AnaChan if hardware supports separate analog trigger channel.
  * Added symbolic constant for AnaDefTrgChn, default analog trigger
  * channel.
  * Added CHAN_OEM... gain modifiers for unique hardware-specific features.
- * 
+ *
  * 22    5/07/99 2:23p Royf
  * Added support for programmable analog coupling.
- * 
+ *
  * 21    3/23/99 3:01p Royf
  * Add new An_Uses32BitXfer flag to indicate hdw always transfers samples
  * in units of 32-bits.
- * 
+ *
  * 20    2/18/99 11:05a Royf
  * Added portable definitions for programmable SE/DIFF inputs.
- * 
+ *
  * 19    12/15/98 3:47p Royf
  * Added new analog I/O flag: An_CustomGains for boards that support
  * modifier bits to basic gain settings.
- * 
+ *
  * 18    5/26/98 10:57a Royf
  * Version to resynchronize file in version control system.
- * 
+ *
  * 18    4/01/98 4:48p Royf
  * Added DIO_STROBED_NE
- * 
+ *
  * 17    1/22/98 2:54p Royf
- * 
+ *
  * 16    10/28/97 10:47a Royf
  * Changed DL_BASEADDR_MASK to 3 bits
- * 
+ *
  * 15    7/21/97 1:46p Royf
  * Added bus and device address flags for DevFlags property in LDD.
- * 
+ *
  * 14    6/30/97 11:23a Royf
  * Added counter/timer flag to support group tasks.
- * 
+ *
  * 13    12/27/96 1:27p Royf
  * Added CT_BUFFERS flag.
- * 
+ *
  * 12    11/14/96 11:08a Royf
  * Added Di_ChanList.
- * 
+ *
  * 11    10/09/96 10:30a Royf
  * Added conditional defines and macros around DigitalChanAddr definitions
  * to support 16/32 bit compilation.
- * 
+ *
  * 10    9/25/96 10:58a Royf
  * Added definitions for new digital channel addressing scheme.
- * 
+ *
  * 9     9/16/96 5:04p Royf
  * Changed ULONG to DWORD.
- * 
+ *
  * 8     9/12/96 12:06p Royf
  * 1. Updated interface version
  * 2. Added new DigitalConfiguration enum.
  * 3. Added new TaskStatus enums.
  * 4. Added new field to Timer_Status.
  * 5. Defined Group Event.
- * 
+ *
  * 7     8/20/96 4:23p Royf
  * Fixed error in definition of OUTPUT... control values for rate
  * generator.
- * 
+ *
  * 6     8/12/96 3:28p Royf
  * Added new enumerations for GENERATORS, CLOCKS, and GATESTATUS.
  * Added new modifiers for counter/timer output control.
- * Defined new "event" event for Win32. 
- * 
+ * Defined new "event" event for Win32.
+ *
  * 2     7/13/95 4:16p Royf
  * Change Lock/UnlockPtr, HNDasPTR macros to expand as null if Win32.
- * 
+ *
  * 1     5/24/95 4:19p Royf
  * DriverLINX API and main entry points
- * 
+ *
  * 1     5/24/95 1:32p Royf
  * DriverLINX API and main entry points
-   
+
       Rev 1.24   22 Nov 1994 15:39:22   ROYF
    Added GBUF_NOCOMPACT and GBUF_NOVXDALLOC flags.
    Added definitions to sub-divide Rate_Event.pulses field to handle special
    feature of some hardware: Global repeat count for each channel sampled.
-   
+
       Rev 1.23   19 Nov 1993 16:01:46   RFURMAN
    Defined Di_ProcessStart for internal use by DriverLINX.
-   
+
       Rev 1.22   05 Nov 1993 10:01:00   RFURMAN
    DriverLINX is now source code compatible with Win 3.x, Watcom C/C++ 32-bit,
    Win32s and Win NT.
    Added new functions, OpenDriverLINX, CloseDriverLINX, and SelectDriverLINX.
    Replaced OEMextensions in Service Request with hDLL.
-   
+
       Rev 1.21   16 Jul 1993 11:30:46   RFURMAN
    Added new rate generator: a split clock, SPLITCLK.
-   
-   
+
+
       Rev 1.20   04 May 1993 11:59:32   RFURMAN
    Remove redundant type-specifier, PASCAL, on GetEvent.
    Changed definition of AUDITONLY flag for MSVC compatibility.
    Added structure packing pragmas for popular compilers.
-   
-   
+
+
       Rev 1.19   11 Mar 1993 11:38:30   RFURMAN
    Added structures and functions for getting additional DriverLINX event data
    from handles posted by some DriverLINX messages.
    Added "nonstop" delay value to allow continuous reporting of stop events.
-   
-   
+
+
       Rev 1.18   15 Dec 1992 12:09:22   Furman
    Added PULSEWD (pulse width) option to GENERATORS.
 
-   
+
       Rev 1.17   06 Sep 1992 20:28:44   Furman
    Converted macros to inline functions if compiled as C++.
    Added user break message.
-   
-   
+
+
       Rev 1.16   30 Jul 1992 20:50:10   Furman
    Minor changes to reduce warnings when compiling with C++
    Changed lostData field in IO_STATUS to bufCount.
@@ -163,52 +163,52 @@ modules\@./MDL@
    Added notification flags for sending start and stop event messages.
    Added start (DL_STARTEVENT) and stop (DL_STOPEVENT) event messages.
    Added new AnFlag An_ScatterGather for scatter/gather support.
-   
-   
+
+
       Rev 1.15   14 Jul 1992 17:12:00   Furman
    Added new support function DLMinPeriod.
-   
-   
+
+
       Rev 1.14   28 Jun 1992 18:07:40   Furman
    Defined 2 new analog trigger types for edge-crossings of dual thresholds.
-   
-   
+
+
       Rev 1.13   21 Jun 1992 20:49:20   Furman
    Added CONVERT operation and DATA_CONVERT and TIMEBASE types.
    Slightly modified definition of notify field in DL_BUFFERLIST structure.
-   
-   
+
+
       Rev 1.12   17 May 1992 16:43:24   Furman
    Added new external CLOCKS:
      EXTERNALPE (positive edge), EXTERNALNE (negative edge).
-   
-   
+
+
       Rev 1.11   09 Apr 1992 15:53:48   Furman
    Added NO_SERVICESTART and NO_SERVICEDONE task flags
-   
+
       Rev 1.10   03 Apr 1992 13:05:32   Furman
    Added DI_EXTCLK channel and ExtClkChn enum to DigitalTypes.
 
-   
+
       Rev 1.9   27 Mar 1992 14:29:18   Furman
    Added DIOSETUP event type and defined standardized digital I/O modes.
-   
-   
+
+
       Rev 1.8   08 Mar 1992 14:31:08   Furman
    Adopted Microsoft floating point function return convention for Borland C++.
    Added declarations to allow compilation with C++.
    Added DLLAPI definition and changed function prototypes to use it.
-   
-   
+
+
       Rev 1.7   01 Mar 1992 22:08:24   Furman
    Added DL_LDDCHANGED message
    Added prototypes for new utility functions
    Added An_DirectIRQ definition for AnFlags
-   
-   
+
+
       Rev 1.6   02 Oct 1991 11:34:32   Furman
    Added ExtTrgChn enum to DigitalTypes.
-   
+
       Rev 1.5   17 Sep 1991 10:26:36   Furman
    Modified typecasting on LockPtr to pass stricter syntax checking.
    Added "#define DI_EXTTRG", a dedicated hdw ext trig pseudo-channel.
@@ -216,16 +216,16 @@ modules\@./MDL@
    Added new operation code, TEST.
    Removed operation modifiers from Ops enum and widened to 16-bit flags.
    Defined DL_DEF_NBUF as default # of buffers in DL_BUFFLIST.
-      
-   
+
+
       Rev 1.4   17 Jul 1991 16:04:20
-   
+
       Rev 1.3   05 May 1991 19:04:08
-   
+
       Rev 1.2   10 Mar 1991 21:11:20
-   
+
       Rev 1.1   13 Jan 1991 21:58:42
-   
+
       Rev 1.0   05 Jan 1991 13:33:20
    Initial revision.
  *
@@ -386,7 +386,7 @@ modules\@./MDL@
 #ifndef DLLAPI
   #define DLLAPI FAR PASCAL
 #endif
-  
+
   /* Set compiler options for consistency with DriverLINX DLL */
 
 #ifdef _MSC_VER
@@ -401,7 +401,7 @@ modules\@./MDL@
 #ifdef __WATCOMC__
   #pragma pack(1)                      /* byte align structures */
   #if defined(__WINDOWS_386__) && defined(__SW_EI)
-    #error Can't compile this header with -ei switch
+    #error Can not compile this header with -ei switch
   #endif
 #endif
 
@@ -766,10 +766,10 @@ typedef S(LDD) FAR_16 *S(LPLDD);
      entered at a time.
   */
 
-  /* Note: DriverLINX does NOT use or need multitasking flags for 
+  /* Note: DriverLINX does NOT use or need multitasking flags for
      32-bit applications.
   */
-  
+
 #ifndef DL_REDECLARE
   #define CS_NONE               0x0000 /* no critical section */
   #define CS_BLOCK_TIMER        0x0001 /* block timer tics */
@@ -836,7 +836,7 @@ typedef struct S(IO_Status) {
        application can override the current calibrations by passing
        a new calibration in this structure when performing the
        data CONVERT operation. */
-       
+
 typedef struct S(cal_const) {
   H(HANDLE)   hCalMem;                 /* Handle to a calibration block */
   DWORD       CalSize;                 /* size of block in bytes */
@@ -946,10 +946,10 @@ typedef struct S(AI_Event) {
 
   /* Special digital event channel ids */
 #ifndef DL_REDECLARE
-  #define DI_EXTTRG  -1                /* Specifies a dedicated hdw ext trig 
+  #define DI_EXTTRG  -1                /* Specifies a dedicated hdw ext trig
                                           line if any.  Match, mask, &
                                           pattern may be ignored. */
-  #define DI_EXTCLK  -2                /* Specifies a dedicated hdw ext clock 
+  #define DI_EXTCLK  -2                /* Specifies a dedicated hdw ext clock
                                           line if any.  Match, mask, &
                                           pattern may be ignored. */
 #endif
@@ -977,7 +977,7 @@ typedef struct S(tagDigitalChanAddr16) {
 #define IOSIZESHIFT 12
 #define IOSIZEMASK  (7 << IOSIZESHIFT)
 
-typedef enum { IOSIZENATURAL, 
+typedef enum { IOSIZENATURAL,
                IOSIZE1,  IOSIZE2,  IOSIZE4, IOSIZE8,
                IOSIZE16, IOSIZE32, IOSIZE64,
                IOSIZEXXX0 = DLMAXENUM
@@ -1261,7 +1261,7 @@ typedef struct S(time_base) {
                  /* External events */
                  AIEVENT, DIEVENT,
                  /* Timing events (also includes DIEVENT) */
-                 RATEEVENT, 
+                 RATEEVENT,
                  /* Counter/timer setup */
                  CTSETUP,
                  /* Digital I/O setup */
@@ -1611,7 +1611,7 @@ inline BOOL PASCAL IsPtr (LPVOID)
      passed to an application using message parameters.  The DriverLINX
      message returns an event handle which the application uses to retrieve
      the additional information using the GetEvent function.
-     
+
      The meaning of the event information depends on the associated message.
      The application must initialize the size field in the event message
      before calling GetEvent.
