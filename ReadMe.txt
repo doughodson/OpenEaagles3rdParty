@@ -25,9 +25,6 @@ http://cigi.sourceforge.net/index.php
 JSBSim: The Open Source Flight Dynamics Model in C++
 http://www.jsbsim.org
 
-portico project: HLA RTI
-http://porticoproject.org
-
 Visual Studio note: All included libraries have been compiled
 for a multi-threaded DLL runtime library.  The libraries were
 compiled with:
@@ -68,10 +65,4 @@ freeglut: version 2.6.0.  Note: The standard freeglut header file has been modif
 FLTK: version 1.3.0
 
 FOX: version 1.6.44
-
-
-HLA
-===
-
-portico : version 1.0.1
 
