@@ -54,7 +54,7 @@ JSBSim : pulled from CVS repository 26 June 2011
 GUI toolkits
 ============
 
-freeglut: version 2.6.0.  Note: The standard freeglut header file has been modified
+freeglut: version 2.8.0 RC2.  Note: The standard freeglut header file has been modified
    so that we link against a static library but don't specify its name in the
    header file.
 
