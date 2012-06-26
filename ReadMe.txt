@@ -1,9 +1,26 @@
 
 ==================================================================
-
 This package has been provided as a convenience for compiling
-in Windows. It contains the include files and static libraries
-for the following toolkits.
+in Windows. It contains the executables, include files and static
+libraries.
+==================================================================
+
+------------------------------------------------------------------
+Applications
+------------------------------------------------------------------
+
+Premake
+http://industriousone.com/premake
+
+mcpp - portable C preprocessor (used as an alternative to Visual Studio
+C preprocessor - useful if Visual Studio is not installed on target computer)
+http://mcpp.sourceforge.net/
+
+Google Protocol buffers compiler (see protocol buffers below)
+
+------------------------------------------------------------------
+Libraries
+------------------------------------------------------------------
 
 freetype: A Free, High-Quality, and Portable Font Engine
 http://freetype.sourceforge.net
@@ -25,6 +42,9 @@ http://cigi.sourceforge.net/index.php
 JSBSim: The Open Source Flight Dynamics Model in C++
 http://www.jsbsim.org
 
+Google protocol buffers
+http://code.google.com/p/protobuf/
+
 Visual Studio note: All included libraries have been compiled
 for a multi-threaded DLL runtime library.  The libraries were
 compiled with:
@@ -33,27 +53,32 @@ Visual Studio 2008 Service Pack #1 installed
 Visual Studio 2010 Service Pack #1 installed
 
 ==================================================================
+Version Numbers
+==================================================================
 
-Basic Graphics support
-======================
+Build tool
+----------
+Premake : version 4.4 beta 4
 
+Graphics support
+----------------
 freetype2 : version 2.4.5
+FTGL      : version 2.1.3rc5 (make sure to turn off "Whole Program Optimization")
 
-FTGL : version 2.1.3rc5 (make sure to turn off "Whole Program Optimization")
-
-Visual System support
-=====================
-
+CIGI visual system interface
+----------------------------
 cigicl  : version 3.3.2
 
 Aero models
-===========
-
+-----------
 JSBSim : pulled from CVS repository 26 June 2011
 
-GUI toolkits
-============
+Binary data storage used by data recorder
+-----------------------------------------
+Google protocol buffers : version 2.4.1
 
+Graphical User Interface (GUI) toolkits
+---------------------------------------
 freeglut: version 2.8.0 RC2.  Note: The standard freeglut header file has been modified
    so that we link against a static library but don't specify its name in the
    header file.
@@ -65,4 +90,3 @@ freeglut: version 2.8.0 RC2.  Note: The standard freeglut header file has been m
 FLTK: version 1.3.0
 
 FOX: version 1.6.44
-
