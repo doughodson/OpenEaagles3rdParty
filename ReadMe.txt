@@ -67,7 +67,7 @@ FTGL      : version 2.1.3rc5 (make sure to turn off "Whole Program Optimization"
 
 CIGI visual system interface
 ----------------------------
-cigicl  : version 3.3.2
+cigicl  : version 3.3.3a
 
 Aero models
 -----------
