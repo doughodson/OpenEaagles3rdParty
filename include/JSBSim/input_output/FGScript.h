@@ -37,18 +37,19 @@ SENTRY
 INCLUDES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#include "FGJSBBase.h"
+#include <vector>
+
 #include "FGFDMExec.h"
+#include "FGJSBBase.h"
 #include "math/FGFunction.h"
 #include "math/FGCondition.h"
-#include <vector>
 #include "input_output/FGXMLFileRead.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_FGSCRIPT "$Id: FGScript.h,v 1.20 2011/02/11 12:43:28 jberndt Exp $"
+#define ID_FGSCRIPT "$Id: FGScript.h,v 1.23 2013/01/26 17:06:49 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -157,7 +158,7 @@ CLASS DOCUMENTATION
     comes the &quot;run&quot; section, where the conditions are
     described in &quot;event&quot; clauses.</p>
     @author Jon S. Berndt
-    @version "$Id: FGScript.h,v 1.20 2011/02/11 12:43:28 jberndt Exp $"
+    @version "$Id: FGScript.h,v 1.23 2013/01/26 17:06:49 bcoconni Exp $"
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -179,8 +180,11 @@ public:
       specified simulation step size.
       @param script the filename (including path name, if any) for the script.
       @param deltaT a simulation step size.
+      @param initfile An optional initialization file name passed in, empty by
+                      default. If a file name is passed in, it will override the
+                      one present in the script.
       @return true if successful */
-  bool LoadScript(string script, double deltaT);
+  bool LoadScript(string script, double deltaT, const string initfile);
 
   /** This function is called each pass through the executive Run() method IF
       scripting is enabled.
@@ -216,8 +220,8 @@ private:
     double           TimeSpan;
     string           Name;
     string           Description;
-    vector <FGPropertyManager*>  SetParam;
-    vector <FGPropertyManager*>  NotifyProperties;
+    vector <FGPropertyNode_ptr>  SetParam;
+    vector <FGPropertyNode_ptr>  NotifyProperties;
     vector <string>              DisplayString;
     vector <eAction> Action;
     vector <eType>   Type;

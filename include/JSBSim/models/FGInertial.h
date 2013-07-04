@@ -47,7 +47,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_INERTIAL "$Id: FGInertial.h,v 1.16 2011/05/20 03:18:36 jberndt Exp $"
+#define ID_INERTIAL "$Id: FGInertial.h,v 1.21 2012/11/23 21:42:29 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -86,22 +86,24 @@ public:
   double SLgravity(void) const {return gAccelReference;}
   double gravity(void) const {return gAccel;}
   double omega(void) const {return RotationRate;}
-  double GetEarthPositionAngle(void) const { return earthPosAngle; }
-  double GetEarthPositionAngleDeg(void) const { return earthPosAngle*radtodeg;}
+  const FGColumnVector3& GetOmegaPlanet() const {return vOmegaPlanet;}
   double GetGAccel(double r) const;
-  FGColumnVector3 GetGravityJ2(FGColumnVector3 position) const;
+  FGColumnVector3 GetGravityJ2(const FGColumnVector3& position) const;
   double GetRefRadius(void) const {return RadiusReference;}
   double GetSemimajor(void) const {return a;}
   double GetSemiminor(void) const {return b;}
 
-  void SetEarthPositionAngle(double epa) {earthPosAngle = epa;}
+  struct Inputs {
+    double Radius;
+    double Latitude;
+  } in;
 
 private:
+  FGColumnVector3 vOmegaPlanet;
   double gAccel;
   double gAccelReference;
   double RadiusReference;
   double RotationRate;
-  double earthPosAngle;
   double GM;
   double C2_0; // WGS84 value for the C2,0 coefficient
   double J2;   // WGS84 value for J2

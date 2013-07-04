@@ -40,13 +40,14 @@ INCLUDES
 
 #include "FGEngine.h"
 #include "math/FGTable.h"
+#include "math/FGFunction.h"
 #include "input_output/FGXMLElement.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_ROCKET "$Id: FGRocket.h,v 1.14 2010/08/21 18:08:25 jberndt Exp $"
+#define ID_ROCKET "$Id: FGRocket.h,v 1.19 2012/09/17 12:29:13 jberndt Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -118,13 +119,11 @@ for the rocket engine to be throttle up to 1. At that time, the solid rocket
 fuel begins burning and thrust is provided.
 
     @author Jon S. Berndt
-    $Id: FGRocket.h,v 1.14 2010/08/21 18:08:25 jberndt Exp $
+    $Id: FGRocket.h,v 1.19 2012/09/17 12:29:13 jberndt Exp $
     @see FGNozzle,
     FGThruster,
     FGForce,
     FGEngine,
-    FGPropulsion,
-    FGTank
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -138,7 +137,7 @@ public:
       @param exec pointer to JSBSim parent object, the FDM Executive.
       @param el a pointer to the XML Element instance representing the engine.
       @param engine_number engine number */
-  FGRocket(FGFDMExec* exec, Element *el, int engine_number);
+  FGRocket(FGFDMExec* exec, Element *el, int engine_number, struct FGEngine::Inputs& input);
 
   /** Destructor */
   ~FGRocket(void);
@@ -146,9 +145,25 @@ public:
   /** Determines the thrust.*/
   void Calculate(void);
 
+  /** The fuel need is calculated based on power levels and flow rate for that
+      power level. It is also turned from a rate into an actual amount (pounds)
+      by multiplying it by the delta T and the rate.
+      @return Total fuel requirement for this engine in pounds. */
+  double CalcFuelNeed(void);
+
+  /** The oxidizer need is calculated based on power levels and flow rate for that
+      power level. It is also turned from a rate into an actual amount (pounds)
+      by multiplying it by the delta T and the rate.
+      @return Total oxidizer requirement for this engine in pounds. */
+  double CalcOxidizerNeed(void);
+
   /** Gets the total impulse of the rocket.
-      @return The cumulative total impulse of the rocket up to this time.*/
+      @return The cumulative actual total impulse of the rocket up to this time.*/
   double GetTotalImpulse(void) const {return It;}
+
+  /** Gets the total impulse of the rocket.
+      @return The cumulative vacuum total impulse of the rocket up to this time.*/
+  double GetVacTotalImpulse(void) const {return ItVac;}
 
   /** Gets the flame-out status.
       The engine will "flame out" if the throttle is set below the minimum
@@ -157,6 +172,14 @@ public:
   bool GetFlameout(void) {return Flameout;}
 
   double GetOxiFlowRate(void) const {return OxidizerFlowRate;}
+
+  double GetMixtureRatio(void) const {return MxR;}
+
+  double GetIsp(void) const {return Isp;}
+
+  void SetMixtureRatio(double mix) {MxR = mix;}
+
+  void SetIsp(double isp) {Isp = isp;}
 
   std::string GetEngineLabels(const std::string& delimiter);
   std::string GetEngineValues(const std::string& delimiter);
@@ -188,25 +211,6 @@ public:
   double GetTotalIspVariation(void) const {return TotalIspVariation;}
 
 private:
-  /** Reduces the fuel in the active tanks by the amount required.
-      This function should be called from within the
-      derived class' Calculate() function before any other calculations are
-      done. This base class method removes fuel from the fuel tanks as
-      appropriate, and sets the starved flag if necessary. */
-  void ConsumeFuel(void);
-
-  /** The fuel need is calculated based on power levels and flow rate for that
-      power level. It is also turned from a rate into an actual amount (pounds)
-      by multiplying it by the delta T and the rate.
-      @return Total fuel requirement for this engine in pounds. */
-  double CalcFuelNeed(void);
-
-  /** The oxidizer need is calculated based on power levels and flow rate for that
-      power level. It is also turned from a rate into an actual amount (pounds)
-      by multiplying it by the delta T and the rate.
-      @return Total oxidizer requirement for this engine in pounds. */
-  double CalcOxidizerNeed(void);
-
   /** Returns the vacuum thrust.
       @return The vacuum thrust in lbs. */
   double GetVacThrust(void) const {return VacThrust;}
@@ -214,7 +218,8 @@ private:
   void bindmodel(void);
 
   double Isp; // Vacuum Isp
-  double It;
+  double It;    // Total actual Isp
+  double ItVac; // Total Vacuum Isp
   double MxR; // Mixture Ratio
   double BurnTime;
   double ThrustVariation;
@@ -223,12 +228,15 @@ private:
   double previousFuelNeedPerTank;
   double previousOxiNeedPerTank;
   double OxidizerExpended;
+  double TotalPropellantExpended;
   double SLOxiFlowMax;
+  double PropFlowMax;
   double OxidizerFlowRate;
   double PropellantFlowRate;
   bool Flameout;
   double BuildupTime;
   FGTable* ThrustTable;
+  FGFunction* isp_function;
 
   void Debug(int from);
 };

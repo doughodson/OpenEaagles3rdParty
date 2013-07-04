@@ -44,21 +44,19 @@ INCLUDES
 #include <vector>
 #include <string>
 
-#include "models/FGOutput.h"
-#include "models/FGInput.h"
 #include "initialization/FGTrim.h"
 #include "FGJSBBase.h"
 #include "input_output/FGPropertyManager.h"
-#include "input_output/FGGroundCallback.h"
 #include "input_output/FGXMLFileRead.h"
 #include "models/FGPropagate.h"
 #include "math/FGColumnVector3.h"
+#include "models/FGOutput.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_FDMEXEC "$Id: FGFDMExec.h,v 1.65 2011/06/21 04:41:54 jberndt Exp $"
+#define ID_FDMEXEC "$Id: FGFDMExec.h,v 1.82 2013/01/26 17:06:49 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -71,6 +69,7 @@ class FGTrim;
 class FGAerodynamics;
 class FGAircraft;
 class FGAtmosphere;
+class FGAccelerations;
 class FGWinds;
 class FGAuxiliary;
 class FGBuoyantForces;
@@ -79,8 +78,6 @@ class FGGroundReactions;
 class FGFCS;
 class FGInertial;
 class FGInput;
-class FGOutput;
-class FGPropagate;
 class FGPropulsion;
 class FGMassBalance;
 
@@ -182,7 +179,7 @@ CLASS DOCUMENTATION
                                 property actually maps toa function call of DoTrim().
 
     @author Jon S. Berndt
-    @version $Revision: 1.65 $
+    @version $Revision: 1.82 $
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -225,6 +222,26 @@ public:
   /// Default destructor
   ~FGFDMExec();
 
+  // This list of enums is very important! The order in which models are listed here
+  // determines the order of execution of the models.
+  enum eModels { ePropagate=0,
+                 eInput,
+                 eInertial,
+                 eAtmosphere,
+                 eWinds,
+                 eAuxiliary,
+                 eSystems,
+                 ePropulsion,
+                 eAerodynamics,
+                 eGroundReactions,
+                 eExternalReactions,
+                 eBuoyantForces,
+                 eMassBalance,
+                 eAircraft,
+                 eAccelerations,
+                 eOutput,
+                 eNumStandardModels };
+
   /** Unbind all tied JSBSim properties. */
   void Unbind(void) {instance->Unbind();}
 
@@ -237,8 +254,9 @@ public:
       one is at this time not recommended.
       @param model A pointer to the model being scheduled.
       @param rate The rate at which to execute the model as described above.
+                  Default is every frame (rate=1).
       @return Currently returns 0 always. */
-  void Schedule(FGModel* model, int rate);
+  void Schedule(FGModel* model, int rate=1);
 
   /** This function executes each scheduled model in succession.
       @return true if successful, false if sim should be ended  */
@@ -249,9 +267,14 @@ public:
       @return true if successful */
   bool RunIC(void);
 
-  /** Sets the ground callback pointer.
-      @param gc A pointer to a ground callback object.  */
-  void SetGroundCallback(FGGroundCallback* gc);
+  /** Sets the ground callback pointer. For optimal memory management, a shared
+      pointer is used internally that maintains a reference counter. The calling
+      application must therefore use FGGroundCallback_ptr 'smart pointers' to
+      manage their copy of the ground callback.
+      @param gc A pointer to a ground callback object
+      @see FGGroundCallback
+   */
+  void SetGroundCallback(FGGroundCallback* gc) { FGLocation::SetGroundCallback(gc); }
 
   /** Loads an aircraft model.
       @param AircraftPath path to the aircraft/ directory. For instance:
@@ -284,12 +307,16 @@ public:
   bool LoadModel(const string& model, bool addModelToPath = true);
 
   /** Loads a script
-      @param Script the full path name and file name for the script to be loaded.
+      @param Script The full path name and file name for the script to be loaded.
       @param deltaT The simulation integration step size, if given.  If no value is supplied
                     then 0.0 is used and the value is expected to be supplied in
                     the script file itself.
-      @return true if successfully loadsd; false otherwise. */
-  bool LoadScript(const string& Script, double deltaT=0.0);
+      @param initfile The initialization file that will override the initialization file
+                      specified in the script file. If no file name is given on the command line,
+                      the file specified in the script will be used. If an initialization file 
+                      is not given in either place, an error will result.
+      @return true if successfully loads; false otherwise. */
+  bool LoadScript(const string& Script, double deltaT=0.0, const string initfile="");
 
   /** Sets the path to the engine config file directories.
       @param path path to the directory under which engine config
@@ -308,44 +335,50 @@ public:
   bool SetSystemsPath(const string& path)   { SystemsPath = RootDir + path; return true; }
   
   /// @name Top-level executive State and Model retrieval mechanism
-  //@{
+  ///@{
   /// Returns the FGAtmosphere pointer.
-  FGAtmosphere* GetAtmosphere(void)    {return Atmosphere;}
+  FGAtmosphere* GetAtmosphere(void)    {return (FGAtmosphere*)Models[eAtmosphere];}
+  /// Returns the FGAccelerations pointer.
+  FGAccelerations* GetAccelerations(void)    {return (FGAccelerations*)Models[eAccelerations];}
   /// Returns the FGWinds pointer.
-  FGWinds* GetWinds(void)    {return Winds;}
+  FGWinds* GetWinds(void)    {return (FGWinds*)Models[eWinds];}
   /// Returns the FGFCS pointer.
-  FGFCS* GetFCS(void)                  {return FCS;}
+  FGFCS* GetFCS(void)                  {return (FGFCS*)Models[eSystems];}
   /// Returns the FGPropulsion pointer.
-  FGPropulsion* GetPropulsion(void)    {return Propulsion;}
+  FGPropulsion* GetPropulsion(void)    {return (FGPropulsion*)Models[ePropulsion];}
   /// Returns the FGAircraft pointer.
-  FGMassBalance* GetMassBalance(void)  {return MassBalance;}
+  FGMassBalance* GetMassBalance(void)  {return (FGMassBalance*)Models[eMassBalance];}
   /// Returns the FGAerodynamics pointer
-  FGAerodynamics* GetAerodynamics(void){return Aerodynamics;}
+  FGAerodynamics* GetAerodynamics(void){return (FGAerodynamics*)Models[eAerodynamics];}
   /// Returns the FGInertial pointer.
-  FGInertial* GetInertial(void)        {return Inertial;}
+  FGInertial* GetInertial(void)        {return (FGInertial*)Models[eInertial];}
   /// Returns the FGGroundReactions pointer.
-  FGGroundReactions* GetGroundReactions(void) {return GroundReactions;}
+  FGGroundReactions* GetGroundReactions(void) {return (FGGroundReactions*)Models[eGroundReactions];}
   /// Returns the FGExternalReactions pointer.
-  FGExternalReactions* GetExternalReactions(void) {return ExternalReactions;}
+  FGExternalReactions* GetExternalReactions(void) {return (FGExternalReactions*)Models[eExternalReactions];}
   /// Returns the FGBuoyantForces pointer.
-  FGBuoyantForces* GetBuoyantForces(void) {return BuoyantForces;}
+  FGBuoyantForces* GetBuoyantForces(void) {return (FGBuoyantForces*)Models[eBuoyantForces];}
   /// Returns the FGAircraft pointer.
-  FGAircraft* GetAircraft(void)        {return Aircraft;}
+  FGAircraft* GetAircraft(void)        {return (FGAircraft*)Models[eAircraft];}
   /// Returns the FGPropagate pointer.
-  FGPropagate* GetPropagate(void)      {return Propagate;}
+  FGPropagate* GetPropagate(void)      {return (FGPropagate*)Models[ePropagate];}
   /// Returns the FGAuxiliary pointer.
-  FGAuxiliary* GetAuxiliary(void)      {return Auxiliary;}
+  FGAuxiliary* GetAuxiliary(void)      {return (FGAuxiliary*)Models[eAuxiliary];}
   /// Returns the FGInput pointer.
-  FGInput* GetInput(void)              {return Input;}
-  /// Returns the FGGroundCallback pointer.
-  FGGroundCallback* GetGroundCallback(void) {return GroundCallback;}
+  FGInput* GetInput(void)              {return (FGInput*)Models[eInput];}
+  /** Get a pointer to the ground callback currently used. It is recommanded
+      to store the returned pointer in a 'smart pointer' FGGroundCallback_ptr.
+      @return A pointer to the current ground callback object.
+      @see FGGroundCallback
+   */
+  FGGroundCallback* GetGroundCallback(void) {return FGLocation::GetGroundCallback();}
   /// Retrieves the script object
   FGScript* GetScript(void) {return Script;}
-  // Returns a pointer to the FGInitialCondition object
+  /// Returns a pointer to the FGInitialCondition object
   FGInitialCondition* GetIC(void)      {return IC;}
-  // Returns a pointer to the FGTrim object
+  /// Returns a pointer to the FGTrim object
   FGTrim* GetTrim(void);
-  //@}
+  ///@}
 
   /// Retrieves the engine path.
   const string& GetEnginePath(void)    {return EnginePath;}
@@ -359,17 +392,18 @@ public:
   /** Retrieves the value of a property.
       @param property the name of the property
       @result the value of the specified property */
-  inline double GetPropertyValue(const string& property) {return instance->GetDouble(property);}
+  inline double GetPropertyValue(const string& property)
+  { return instance->GetNode()->GetDouble(property); }
 
   /** Sets a property value.
       @param property the property to be set
       @param value the value to set the property to */
   inline void SetPropertyValue(const string& property, double value) {
-    instance->SetDouble(property, value);
+    instance->GetNode()->SetDouble(property, value);
   }
 
   /// Returns the model name.
-  const string& GetModelName(void) { return modelName; }
+  const string& GetModelName(void) const { return modelName; }
 /*
   /// Returns the current time.
   double GetSimTime(void);
@@ -382,9 +416,9 @@ public:
   /// Returns a vector of strings representing the names of all loaded models (future)
   vector <string> EnumerateFDMs(void);
   /// Gets the number of child FDMs.
-  int GetFDMCount(void) {return (int)ChildFDMList.size();}
+  int GetFDMCount(void) const {return (int)ChildFDMList.size();}
   /// Gets a particular child FDM.
-  childData* GetChildFDM(int i) {return ChildFDMList[i];}
+  childData* GetChildFDM(int i) const {return ChildFDMList[i];}
   /// Marks this instance of the Exec object as a "child" object.
   void SetChild(bool ch) {IsChild = ch;}
 
@@ -403,27 +437,24 @@ public:
       be logged.
       @param fname the filename of an output directives file.
     */
-  bool SetOutputDirectives(const string& fname);
+  bool SetOutputDirectives(const string& fname)
+  {return Output->SetDirectivesFile(RootDir + fname);}
 
   /** Forces the specified output object to print its items once */
-  void ForceOutput(int idx=0);
+  void ForceOutput(int idx=0) { Output->ForceOutput(idx); }
+
+  /** Sets the logging rate for all output objects (if any). */
+  void SetLoggingRate(double rate) { Output->SetRate(rate); }
 
   /** Sets (or overrides) the output filename
       @param fname the name of the file to output data to
       @return true if successful, false if there is no output specified for the flight model */
-  bool SetOutputFileName(const string& fname) {
-    if (Outputs.size() > 0) Outputs[0]->SetOutputFileName(fname);
-    else return false;
-    return true;
-  }
+  bool SetOutputFileName(const string& fname) { return Output->SetOutputName(0, fname); }
 
   /** Retrieves the current output filename.
       @return the name of the output file for the first output specified by the flight model.
               If none is specified, the empty string is returned. */
-  string GetOutputFileName(void) {
-    if (Outputs.size() > 0) return Outputs[0]->GetOutputFileName();
-    else return string("");
-  }
+  string GetOutputFileName(void) const { return Output->GetOutputName(0); }
 
   /** Executes trimming in the selected mode.
   *   @param mode Specifies how to trim:
@@ -435,13 +466,23 @@ public:
   * - tTurn
   * - tNone  */
   void DoTrim(int mode);
+  void DoSimplexTrim(int mode);
+
+  /** Executes linearization with state-space output
+   * You must trim first to get an accurate state-space model
+   */
+  void DoLinearization(int mode);
 
   /// Disables data logging to all outputs.
-  void DisableOutput(void);
+  void DisableOutput(void) { Output->Disable(); }
   /// Enables data logging to all outputs.
-  void EnableOutput(void);
+  void EnableOutput(void) { Output->Enable(); }
   /// Pauses execution by preventing time from incrementing.
   void Hold(void) {holding = true;}
+  /// Turn on hold after increment
+  void EnableIncrementThenHold(int Timesteps) {TimeStepsUntilHold = Timesteps; IncrementThenHolding = true;}
+  /// Checks if required to hold afer increment
+  void CheckIncrementalHold(void);
   /// Resumes execution from a "Hold".
   void Resume(void) {holding = false;}
   /// Returns true if the simulation is Holding (i.e. simulation time is not moving).
@@ -455,7 +496,7 @@ public:
     /// Name of the property.
     string base_string;
     /// The node for the property.
-    FGPropertyManager *node;
+    FGPropertyNode_ptr node;
   };
 
   /** Builds a catalog of properties.
@@ -482,21 +523,30 @@ public:
   void SetTrimMode(int mode){ ta_mode = mode; }
   int GetTrimMode(void) const { return ta_mode; }
 
+  string GetPropulsionTankReport();
+
   /// Returns the cumulative simulation time in seconds.
   double GetSimTime(void) const { return sim_time; }
 
   /// Returns the simulation delta T.
-  double GetDeltaT(void) {return dT;}
+  double GetDeltaT(void) const {return dT;}
 
   /// Suspends the simulation and sets the delta T to zero.
-  void SuspendIntegration(void) {saved_dT = dT; dT = 0.0;}
+  void SuspendIntegration(void) {
+	  if (dT != 0.0) { // check if already suspended
+		  saved_dT = dT;
+		  dT = 0.0;
+	  }
+  }
 
   /// Resumes the simulation by resetting delta T to the correct value.
-  void ResumeIntegration(void)  {dT = saved_dT;}
+  void ResumeIntegration(void)  {
+	  dT = saved_dT;
+  }
 
   /** Returns the simulation suspension state.
       @return true if suspended, false if executing  */
-  bool IntegrationSuspended(void) {return dT == 0.0;}
+  bool IntegrationSuspended(void) const {return dT == 0.0;}
 
   /** Sets the current sim time.
       @param cur_time the current time
@@ -530,6 +580,10 @@ public:
   /** Retrieves the current debug level setting. */
   int GetDebugLevel(void) const {return debug_lvl;};
 
+  /** Initializes the simulation with initial conditions
+      @param FGIC The initial conditions that will be passed to the simulation. */
+  void Initialize(FGInitialCondition *FGIC);
+
 private:
   int Error;
   unsigned int Frame;
@@ -539,6 +593,8 @@ private:
   double saved_dT;
   double sim_time;
   bool holding;
+  bool IncrementThenHolding;
+  int TimeStepsUntilHold;
   bool Constructing;
   bool modelLoaded;
   bool IsChild;
@@ -551,24 +607,26 @@ private:
   string Release;
   string RootDir;
 
+  // Standard Model pointers - shortcuts for internal executive use only.
+  FGPropagate* Propagate;
+  FGInertial* Inertial;
+  FGAtmosphere* Atmosphere;
+  FGWinds* Winds;
+  FGAuxiliary* Auxiliary;
+  FGFCS* FCS;
+  FGPropulsion* Propulsion;
+  FGAerodynamics* Aerodynamics;
+  FGGroundReactions* GroundReactions;
+  FGExternalReactions* ExternalReactions;
+  FGBuoyantForces* BuoyantForces;
+  FGMassBalance* MassBalance;
+  FGAircraft* Aircraft;
+  FGAccelerations* Accelerations;
+  FGOutput* Output;
+
   bool trim_status;
   int ta_mode;
 
-  FGGroundCallback*   GroundCallback;
-  FGAtmosphere*       Atmosphere;
-  FGWinds*            Winds;
-  FGFCS*              FCS;
-  FGPropulsion*       Propulsion;
-  FGMassBalance*      MassBalance;
-  FGAerodynamics*     Aerodynamics;
-  FGInertial*         Inertial;
-  FGGroundReactions*  GroundReactions;
-  FGExternalReactions* ExternalReactions;
-  FGBuoyantForces*    BuoyantForces;
-  FGAircraft*         Aircraft;
-  FGPropagate*        Propagate;
-  FGAuxiliary*        Auxiliary;
-  FGInput*            Input;
   FGScript*           Script;
   FGInitialCondition* IC;
   FGTrim*             Trim;
@@ -581,7 +639,6 @@ private:
   unsigned int*      FDMctr;
 
   vector <string> PropertyCatalog;
-  vector <FGOutput*> Outputs;
   vector <childData*> ChildFDMList;
   vector <FGModel*> Models;
 
@@ -589,9 +646,12 @@ private:
   bool ReadChild(Element*);
   bool ReadPrologue(Element*);
   void ResetToInitialConditions(int mode);
+  void SRand(int sr);
+  void LoadInputs(unsigned int idx);
+  void LoadPlanetConstants(void);
+  void LoadModelConstants(void);
   bool Allocate(void);
   bool DeAllocate(void);
-  void Initialize(FGInitialCondition *FGIC);
 
   void Debug(int from);
 };

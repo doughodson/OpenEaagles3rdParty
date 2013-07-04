@@ -46,7 +46,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_STANDARDATMOSPHERE "$Id: FGStandardAtmosphere.h,v 1.13 2011/06/23 13:08:35 jberndt Exp $"
+#define ID_STANDARDATMOSPHERE "$Id: FGStandardAtmosphere.h,v 1.17 2012/04/13 13:18:27 jberndt Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -93,7 +93,7 @@ consistently and accurately calculated.
 
   @author Jon Berndt
   @see "U.S. Standard Atmosphere, 1976", NASA TM-X-74335
-  @version $Id: FGStandardAtmosphere.h,v 1.13 2011/06/23 13:08:35 jberndt Exp $
+  @version $Id: FGStandardAtmosphere.h,v 1.17 2012/04/13 13:18:27 jberndt Exp $
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -139,11 +139,13 @@ public:
   virtual double GetStdTemperatureRatio(double h) const { return GetStdTemperature(h)*rSLtemperature; }
 
   /// Returns the temperature bias over the sea level value in degrees Rankine.
-  virtual double GetTemperatureBias(eTemperature to) const {return TemperatureBias;}
+  virtual double GetTemperatureBias(eTemperature to) const
+  { if (to == eCelsius || to == eKelvin) return TemperatureBias/1.80; else return TemperatureBias; }
 
   /// Returns the temperature gradient to be applied on top of the standard
   /// temperature gradient.
-  virtual double GetTemperatureDeltaGradient() { return TemperatureDeltaGradient;}
+  virtual double GetTemperatureDeltaGradient(eTemperature to)
+  { if (to == eCelsius || to == eKelvin) return TemperatureDeltaGradient/1.80; else return TemperatureDeltaGradient; }
 
   /// Sets the Sea Level temperature, if it is to be different than the standard.
   /// This function will calculate a bias - a difference - from the standard
@@ -176,7 +178,7 @@ public:
   /// this function with a calculated bias.
   /// @param t the temperature value in the unit provided.
   /// @param unit the unit of the temperature.
-  virtual void SetTemperatureBias(double t, eTemperature unit=eFahrenheit);
+  virtual void SetTemperatureBias(eTemperature unit, double t);
 
   /// Sets a Sea Level temperature delta that is ramped out by 86 km.
   /// The value of the delta is used to calculate a delta gradient that is
@@ -191,7 +193,7 @@ public:
   /// temperature profile as desired.
   /// @param t the sea level temperature delta value in the unit provided.
   /// @param unit the unit of the temperature.
-  virtual void SetSLTemperatureGradedDelta(double t, eTemperature unit=eFahrenheit);
+  virtual void SetSLTemperatureGradedDelta(eTemperature unit, double t);
 
   /// Sets the temperature delta value at the supplied altitude/elevation above
   /// sea level, to be added to the standard temperature and ramped out by
@@ -224,10 +226,10 @@ public:
   /** Sets the sea level pressure for modeling an off-standard pressure
       profile. This could be useful in the case where the pressure at an
       airfield is known or set for a particular simulation run.
-      @param pressure The pressure in the units specified (PSF by default).
+      @param pressure The pressure in the units specified.
       @param unit the unit of measure that the specified pressure is
                        supplied in.*/
-  virtual void SetPressureSL(double pressure, ePressure unit=ePSF);
+  virtual void SetPressureSL(ePressure unit, double pressure);
 
   /** Resets the sea level to the Standard sea level pressure, and recalculates
       dependent parameters so that the pressure calculations are standard. */
@@ -240,10 +242,6 @@ public:
   /// Returns the standard density at a specified altitude
   virtual double GetStdDensity(double altitude) const;
   //@}
-
-  virtual double GetDensityAltitude() const {return DensityAltitude;}
-
-  virtual double GetPressureAltitude() const {return PressureAltitude;}
 
   /// Prints the U.S. Standard Atmosphere table.
   virtual void PrintStandardAtmosphereTable();

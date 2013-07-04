@@ -51,7 +51,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_EXTERNALFORCE "$Id: FGExternalForce.h,v 1.9 2010/11/18 12:38:06 jberndt Exp $"
+#define ID_EXTERNALFORCE "$Id: FGExternalForce.h,v 1.11 2012/12/23 14:56:58 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -154,7 +154,7 @@ public:
   void SetMagnitude(double mag);
   void SetAzimuth(double az) {azimuth = az;}
 
-  FGColumnVector3& GetBodyForces(void);
+  const FGColumnVector3& GetBodyForces(void);
   double GetMagnitude(void) const {return magnitude;}
   double GetAzimuth(void) const {return azimuth;}
   double GetX(void) const {return vDirection(eX);}
@@ -168,14 +168,10 @@ private:
 
   string Frame;
   string Name;
-  FGPropertyManager* PropertyManager;
-  FGPropertyManager* Magnitude_Node;
   FGFunction* Magnitude_Function;
-  string BasePropertyName;
   FGColumnVector3 vDirection;
   double magnitude;
   double azimuth;
-  void unbind(FGPropertyManager *node);
   void Debug(int from);
 };
 }

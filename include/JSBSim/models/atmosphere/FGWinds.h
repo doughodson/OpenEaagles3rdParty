@@ -40,13 +40,14 @@ INCLUDES
 
 #include "models/FGModel.h"
 #include "math/FGColumnVector3.h"
+#include "math/FGMatrix33.h"
 #include "math/FGTable.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_WINDS "$Id: FGWinds.h,v 1.1 2011/06/21 10:33:29 jberndt Exp $"
+#define ID_WINDS "$Id: FGWinds.h,v 1.9 2011/11/19 14:14:57 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -149,8 +150,11 @@ public:
   /// Sets a wind component in NED frame.
   virtual void SetWindNED(int idx, double wind) { vWindNED(idx)=wind;}
 
+  /// Sets the wind components in NED frame.
+  virtual void SetWindNED(const FGColumnVector3& wind) { vWindNED=wind; }
+
   /// Retrieves the wind components in NED frame.
-  virtual FGColumnVector3& GetWindNED(void) { return vWindNED; }
+  virtual const FGColumnVector3& GetWindNED(void) const { return vWindNED; }
 
   /// Retrieves a wind component in NED frame.
   virtual double GetWindNED(int idx) const {return vWindNED(idx);}
@@ -190,7 +194,7 @@ public:
   virtual double GetTurbNED(int idx) const {return vTurbulenceNED(idx);}
 
   /// Retrieves the gust components in NED frame.
-  virtual FGColumnVector3& GetGustNED(void) {return vGustNED;}
+  virtual const FGColumnVector3& GetGustNED(void) const {return vGustNED;}
 
   /** Turbulence models available: ttNone, ttStandard, ttBerndt, ttCulp, ttMilspec, ttTustin */
   virtual void   SetTurbType(tType tt) {turbType = tt;}
@@ -217,6 +221,101 @@ public:
   virtual void   SetProbabilityOfExceedence( int idx) {probability_of_exceedence_index = idx;}
   virtual int    GetProbabilityOfExceedence() const { return probability_of_exceedence_index;}
 
+  // Stores data defining a 1 - cosine gust profile that builds up, holds steady
+  // and fades out over specified durations.
+  struct OneMinusCosineProfile {
+    bool Running;           ///<- This flag is set true through FGWinds::StartGust().
+    double elapsedTime;     ///<- Stores the elapsed time for the ongoing gust.
+    double startupDuration; ///<- Specifies the time it takes for the gust startup transient.
+    double steadyDuration;  ///<- Specifies the duration of the steady gust.
+    double endDuration;     ///<- Specifies the time it takes for the gust to subsude.
+    OneMinusCosineProfile() ///<- The constructor.
+    {
+      elapsedTime = 0.0;
+      Running = false;
+      startupDuration = 2;
+      steadyDuration = 4;
+      endDuration = 2;
+    }
+  };
+
+  enum eGustFrame {gfNone=0, gfBody, gfWind, gfLocal};
+
+  /// Stores the information about a single one minus cosine gust instance.
+  struct OneMinusCosineGust {
+    FGColumnVector3 vWind;                    ///<- The input normalized wind vector.
+    FGColumnVector3 vWindTransformed;         ///<- The transformed normal vector at the time the gust is started.
+    double magnitude;                         ///<- The magnitude of the wind vector.
+    eGustFrame gustFrame;                     ///<- The frame that the wind vector is specified in.
+    struct OneMinusCosineProfile gustProfile; ///<- The gust shape (profile) data for this gust.
+    OneMinusCosineGust()                      ///<- Constructor.
+    {
+      vWind.InitMatrix(0.0);
+      gustFrame = gfLocal;
+      magnitude = 1.0;
+    };
+  };
+
+  /// Stores information about a specified Up- or Down-burst.
+  struct UpDownBurst {
+    double ringLatitude;                           ///<- The latitude of the downburst run (radians)
+    double ringLongitude;                          ///<- The longitude of the downburst run (radians)
+    double ringAltitude;                           ///<- The altitude of the ring (feet).
+    double ringRadius;                             ///<- The radius of the ring (feet).
+    double ringCoreRadius;                         ///<- The cross-section "core" radius of the ring (feet).
+    double circulation;                            ///<- The circulation (gamma) (feet-squared per second).
+    struct OneMinusCosineProfile oneMCosineProfile;///<- A gust profile structure.
+    UpDownBurst() {                                ///<- Constructor
+      ringLatitude = ringLongitude = 0.0;
+      ringAltitude = 1000.0;
+      ringRadius = 2000.0;
+      ringCoreRadius = 100.0;
+      circulation = 100000.0;
+    }
+  };
+
+  // 1 - Cosine gust setters
+  /// Initiates the execution of the gust.
+  virtual void StartGust(bool running) {oneMinusCosineGust.gustProfile.Running = running;}
+  ///Specifies the duration of the startup portion of the gust.
+  virtual void StartupGustDuration(double dur) {oneMinusCosineGust.gustProfile.startupDuration = dur;}
+  ///Specifies the length of time that the gust is at a steady, full strength.
+  virtual void SteadyGustDuration(double dur) {oneMinusCosineGust.gustProfile.steadyDuration = dur;}
+  /// Specifies the length of time it takes for the gust to return to zero velocity.
+  virtual void EndGustDuration(double dur) {oneMinusCosineGust.gustProfile.endDuration = dur;}
+  /// Specifies the magnitude of the gust in feet/second.
+  virtual void GustMagnitude(double mag) {oneMinusCosineGust.magnitude = mag;}
+  /** Specifies the frame that the gust direction vector components are specified in. The 
+      body frame is defined with the X direction forward, and the Y direction positive out
+      the right wing. The wind frame is defined with the X axis pointing into the velocity
+      vector, the Z axis perpendicular to the X axis, in the aircraft XZ plane, and the Y
+      axis completing the system. The local axis is a navigational frame with X pointing north,
+      Y pointing east, and Z pointing down. This is a locally vertical, locally horizontal
+      frame, with the XY plane tangent to the geocentric surface. */
+  virtual void GustFrame(eGustFrame gFrame) {oneMinusCosineGust.gustFrame = gFrame;}
+  /// Specifies the X component of velocity in the specified gust frame (ft/sec).
+  virtual void GustXComponent(double x) {oneMinusCosineGust.vWind(eX) = x;}
+  /// Specifies the Y component of velocity in the specified gust frame (ft/sec).
+  virtual void GustYComponent(double y) {oneMinusCosineGust.vWind(eY) = y;}
+  /// Specifies the Z component of velocity in the specified gust frame (ft/sec).
+  virtual void GustZComponent(double z) {oneMinusCosineGust.vWind(eZ) = z;}
+
+  // Up- Down-burst functions
+  void NumberOfUpDownburstCells(int num);
+
+  struct Inputs {
+    double V;
+    double wingspan;
+    double DistanceAGL;
+    double AltitudeASL;
+    double longitude;
+    double latitude;
+    double planetRadius;
+    FGMatrix33 Tl2b;
+    FGMatrix33 Tw2b;
+    double totalDeltaT;
+  } in;
+
 private:
 
   double MagnitudedAccelDt, MagnitudeAccel, Magnitude;
@@ -233,6 +332,9 @@ private:
   FGColumnVector3 vBodyTurbGrad;
   FGColumnVector3 vTurbPQR;
 
+  struct OneMinusCosineGust oneMinusCosineGust;
+  std::vector <struct UpDownBurst*> UpDownBurstCells;
+
   // Dryden turbulence model
   double windspeed_at_20ft; ///< in ft/s
   int probability_of_exceedence_index; ///< this is bound as the severity property
@@ -242,10 +344,17 @@ private:
   FGColumnVector3 vTotalWindNED;
   FGColumnVector3 vWindNED;
   FGColumnVector3 vGustNED;
+  FGColumnVector3 vCosineGust;
+  FGColumnVector3 vBurstGust;
   FGColumnVector3 vTurbulenceNED;
 
-  /// Get T, P and rho for a standard atmosphere at the given altitude.
   void Turbulence(double h);
+  void UpDownBurst();
+
+  void CosineGust();
+  double CosineGustProfile( double startDuration, double steadyDuration,
+                            double endDuration, double elapsedTime);
+  double DistanceFromRingCenter(double lat, double lon);
 
   virtual void bind(void);
   void Debug(int from);

@@ -52,7 +52,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_AERODYNAMICS "$Id: FGAerodynamics.h,v 1.23 2011/05/20 03:18:36 jberndt Exp $"
+#define ID_AERODYNAMICS "$Id: FGAerodynamics.h,v 1.26 2012/07/26 04:33:46 jberndt Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -109,7 +109,7 @@ CLASS DOCUMENTATION
     Systems may NOT be combined, or a load error will occur.
 
     @author Jon S. Berndt, Tony Peden
-    @version $Revision: 1.23 $
+    @version $Revision: 1.26 $
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -154,14 +154,23 @@ public:
       @return the force acting on an axis */
   double GetForces(int n) const {return vForces(n);}
 
-  /** Gets the total aerodynamic moment vector.
+  /** Gets the total aerodynamic moment vector about the CG.
       @return a moment vector reference. */
   const FGColumnVector3& GetMoments(void) const {return vMoments;}
 
-  /** Gets the aerodynamic moment for an axis.
+  /** Gets the aerodynamic moment about the CG for an axis.
       @return the moment about a single axis (as described also in the
               similar call to GetForces(int n).*/
   double GetMoments(int n) const {return vMoments(n);}
+
+  /** Gets the total aerodynamic moment vector about the Moment Reference Center.
+      @return a moment vector reference. */
+  const FGColumnVector3& GetMomentsMRC(void) const {return vMomentsMRC;}
+
+  /** Gets the aerodynamic moment about the Moment Reference Center for an axis.
+      @return the moment about a single axis (as described also in the
+              similar call to GetForces(int n).*/
+  double GetMomentsMRC(int n) const {return vMomentsMRC(n);}
 
   /** Retrieves the aerodynamic forces in the wind axes.
       @return a reference to a column vector containing the wind axis forces. */
@@ -202,17 +211,21 @@ public:
       aero functions */
   std::string GetAeroFunctionValues(const std::string& delimeter) const;
 
-  /** Calculates and returns the wind-to-body axis transformation matrix.
-      @return a reference to the wind-to-body transformation matrix.
-      */
-  FGMatrix33& GetTw2b(void);
-
-  /** Calculates and returns the body-to-wind axis transformation matrix.
-      @return a reference to the wind-to-body transformation matrix.
-      */
-  FGMatrix33& GetTb2w(void);
-
   std::vector <FGFunction*> * GetAeroFunctions(void) const { return AeroFunctions; }
+
+  struct Inputs {
+    double Alpha;
+    double Beta;
+    double Vt;
+    double Qbar;
+    double Wingarea;
+    double Wingspan;
+    double Wingchord;
+    double Wingincidence;
+    FGColumnVector3 RPBody;
+    FGMatrix33 Tb2w;
+    FGMatrix33 Tw2b;
+  } in;
 
 private:
   enum eAxisType {atNone, atLiftDrag, atAxialNormal, atBodyXYZ} axisType;
@@ -225,10 +238,9 @@ private:
   FGColumnVector3 vFw;
   FGColumnVector3 vForces;
   FGColumnVector3 vMoments;
+  FGColumnVector3 vMomentsMRC;
   FGColumnVector3 vDXYZcg;
   FGColumnVector3 vDeltaRP;
-  FGMatrix33 mTw2b;
-  FGMatrix33 mTb2w;
   double alphaclmax, alphaclmin;
   double alphahystmax, alphahystmin;
   double impending_stall, stall_hyst;

@@ -56,7 +56,7 @@ using std::max;
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_JSBBASE "$Id: FGJSBBase.h,v 1.32 2011/06/13 11:47:04 jberndt Exp $"
+#define ID_JSBBASE "$Id: FGJSBBase.h,v 1.36 2012/03/25 11:05:36 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -72,7 +72,7 @@ CLASS DOCUMENTATION
 *   This class provides universal constants, utility functions, messaging
 *   functions, and enumerated constants to JSBSim.
     @author Jon S. Berndt
-    @version $Id: FGJSBBase.h,v 1.32 2011/06/13 11:47:04 jberndt Exp $
+    @version $Id: FGJSBBase.h,v 1.36 2012/03/25 11:05:36 bcoconni Exp $
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -256,6 +256,29 @@ public:
     return kelvin - 273.15;
   }
 
+  /** Calculate the calibrated airspeed from the Mach number. It uses the
+  *   Rayleigh formula for supersonic speeds (See "Introduction to Aerodynamics
+  *   of a Compressible Fluid - H.W. Liepmann, A.E. Puckett - Wiley & sons
+  *   (1947)" §5.4 pp 75-80)
+  *   @param mach  The Mach number
+  *   @param p     Pressure in psf
+  *   @param psl   Pressure at sea level in psf
+  *   @param rhosl Density at sea level in slugs/ft^3
+  *   @return The calibrated airspeed (CAS) in ft/s
+  * */
+  static double VcalibratedFromMach(double mach, double p, double psl, double rhosl);
+
+  /** Calculate the Mach number from the calibrated airspeed. For subsonic
+  * speeds, the reversed formula has a closed form. For supersonic speeds, the
+  * Rayleigh formula is reversed by the Newton-Raphson algorithm.
+  *   @param vcas  The calibrated airspeed (CAS) in ft/s
+  *   @param p     Pressure in psf
+  *   @param psl   Pressure at sea level in psf
+  *   @param rhosl Density at sea level in slugs/ft^3
+  *   @return The Mach number
+  * */
+  static double MachFromVcalibrated(double vcas, double p, double psl, double rhosl);
+
   /** Finite precision comparison.
       @param a first value to compare
       @param b second value to compare
@@ -263,7 +286,6 @@ public:
   static bool EqualToRoundoff(double a, double b) {
     double eps = 2.0*DBL_EPSILON;
     return std::fabs(a - b) <= eps * max(std::fabs(a), std::fabs(b));
-
   }
 
   /** Finite precision comparison.

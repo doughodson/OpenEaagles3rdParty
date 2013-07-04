@@ -44,7 +44,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_ACTUATOR "$Id: FGActuator.h,v 1.11 2009/10/02 10:30:09 jberndt Exp $"
+#define ID_ACTUATOR "$Id: FGActuator.h,v 1.15 2013/01/26 17:06:50 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -75,13 +75,22 @@ CLASS DOCUMENTATION
     There are also several malfunctions that can be applied to the actuator
     by setting a property to true or false (or 1 or 0).
 
+    Rate limits can be specified either as a single number or property. If a
+    single <rate_limit> is supplied (with no "sense" attribute) then the actuator
+    is rate limited at +/- the specified rate limit. If the <rate_limit> element
+    is supplied with a "sense" attribute of either "incr[easing]" or 
+    "decr[easing]" then the actuator is limited to the provided numeric or property
+    value) exactly as provided.
+
 Syntax:
 
 @code
 <actuator name="name">
   <input> {[-]property} </input>
   <lag> number </lag>
-  <rate_limit> number <rate_limit>
+  [<rate_limit> {property name | value} </rate_limit>]
+  [<rate_limit sense="incr"> {property name | value} </rate_limit>
+   <rate_limit sense="decr"> {property name | value} </rate_limit>]
   <bias> number </bias>
   <deadband_width> number </deadband_width>
   <hysteresis_width> number </hysteresis_width>
@@ -96,14 +105,14 @@ Syntax:
 Example:
 
 @code
-<actuator name="fcs/gimbal_pitch_position">
+<actuator name="fcs/gimbal_pitch_position_radians">
   <input> fcs/gimbal_pitch_command </input>
   <lag> 60 </lag>
-  <rate_limit> 0.085 <rate_limit> <!-- 5 degrees/sec -->
+  <rate_limit> 0.085 </rate_limit> <!-- 0.085 radians/sec -->
   <bias> 0.002 </bias>
   <deadband_width> 0.002 </deadband_width>
   <hysteresis_width> 0.05 </hysteresis_width>
-  <clipto> <!-- +/- 10 degrees -->
+  <clipto> <!-- +/- 0.17 radians -->
     <min> -0.17 </min>
     <max>  0.17 </max>
    </clipto>
@@ -111,7 +120,7 @@ Example:
 @endcode
 
 @author Jon S. Berndt
-@version $Revision: 1.11 $
+@version $Revision: 1.15 $
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -135,18 +144,24 @@ public:
   /** This function fails the actuator to zero. The motion to zero
       will flow through the lag, hysteresis, and rate limiting
       functions if those are activated. */
-  inline void SetFailZero(bool set) {fail_zero = set;}
-  inline void SetFailHardover(bool set) {fail_hardover = set;}
-  inline void SetFailStuck(bool set) {fail_stuck = set;}
+  void SetFailZero(bool set) {fail_zero = set;}
+  void SetFailHardover(bool set) {fail_hardover = set;}
+  void SetFailStuck(bool set) {fail_stuck = set;}
 
-  inline bool GetFailZero(void) const {return fail_zero;}
-  inline bool GetFailHardover(void) const {return fail_hardover;}
-  inline bool GetFailStuck(void) const {return fail_stuck;}
+  bool GetFailZero(void) const {return fail_zero;}
+  bool GetFailHardover(void) const {return fail_hardover;}
+  bool GetFailStuck(void) const {return fail_stuck;}
+  bool IsSaturated(void) const {return saturated;}
   
 private:
   double span;
   double bias;
+  bool rate_limited;
   double rate_limit;
+  double rate_limit_incr;
+  double rate_limit_decr;
+  FGPropertyNode_ptr rate_limit_incr_prop;
+  FGPropertyNode_ptr rate_limit_decr_prop;
   double hysteresis_width;
   double deadband_width;
   double lag;
@@ -160,6 +175,8 @@ private:
   bool fail_zero;
   bool fail_hardover;
   bool fail_stuck;
+  bool initialized;
+  bool saturated;
 
   void Hysteresis(void);
   void Lag(void);

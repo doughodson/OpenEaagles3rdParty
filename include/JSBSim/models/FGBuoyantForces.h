@@ -4,7 +4,7 @@
  Author:       Anders Gidenstam, Jon S. Berndt
  Date started: 01/21/08
 
- ------------- Copyright (C) 2008 - 2010  Anders Gidenstam        -------------
+ ------------- Copyright (C) 2008 - 2011  Anders Gidenstam        -------------
  ------------- Copyright (C) 2008  Jon S. Berndt (jon@jsbsim.org) -------------
 
  This program is free software; you can redistribute it and/or modify it under
@@ -32,8 +32,8 @@ HISTORY
 SENTRY
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#ifndef FGBuoyanTFORCES_H
-#define FGBuoyanTFORCES_H
+#ifndef FGBUOYANTFORCES_H
+#define FGBUOYANTFORCES_H
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 INCLUDES
@@ -51,7 +51,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_BUOYANTFORCES "$Id: FGBuoyantForces.h,v 1.12 2011/05/20 03:18:36 jberndt Exp $"
+#define ID_BUOYANTFORCES "$Id: FGBuoyantForces.h,v 1.16 2011/10/31 14:54:41 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -96,7 +96,7 @@ CLASS DOCUMENTATION
     See FGGasCell for the full configuration file format for gas cells.
 
     @author Anders Gidenstam, Jon S. Berndt
-    @version $Id: FGBuoyantForces.h,v 1.12 2011/05/20 03:18:36 jberndt Exp $
+    @version $Id: FGBuoyantForces.h,v 1.16 2011/10/31 14:54:41 bcoconni Exp $
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -132,55 +132,58 @@ public:
   bool Load(Element* element);
 
   /** Gets the total Buoyant force vector.
-      @return a force vector. */
+      @return a force vector in lbs. */
   const FGColumnVector3& GetForces(void) const {return vTotalForces;}
 
   /** Gets a component of the total Buoyant force vector.
-      @return a component of the force vector. */
+      @return a component of the force vector in lbs. */
   double GetForces(int idx) const {return vTotalForces(idx);}
 
   /** Gets the total Buoyancy moment vector.
-      @return a moment vector. */
+      @return a moment vector in the body frame in lbs ft. */
   const FGColumnVector3& GetMoments(void) const {return vTotalMoments;}
 
   /** Gets a component of the total Buoyancy moment vector.
-      @return a component of the moment vector. */
+      @return a component of the moment vector in the body frame in lbs ft. */
   double GetMoments(int idx) const {return vTotalMoments(idx);}
 
   /** Gets the total gas mass. The gas mass is part of the aircraft's
       inertia.
       @return mass in slugs. */
-  double GetGasMass(void);
+  double GetGasMass(void) const;
 
   /** Gets the total moment from the gas mass.
-      @return a moment vector. */
+      @return a moment vector in the structural frame in lbs in. */
   const FGColumnVector3& GetGasMassMoment(void);
 
-  /** Gets the total moments of inertia for the gas mass.
-      @return . */
+  /** Gets the total moments of inertia for the gas mass in the body frame.
+      @return moments of inertia matrix in the body frame
+      in slug ft<sup>2</sup>. */
   const FGMatrix33& GetGasMassInertia(void);
 
   /** Gets the strings for the current set of gas cells.
       @param delimeter either a tab or comma string depending on output type
       @return a string containing the descriptive names for all parameters */
-  string GetBuoyancyStrings(string delimeter);
+  string GetBuoyancyStrings(const string& delimeter);
 
   /** Gets the coefficient values.
       @param delimeter either a tab or comma string depending on output type
       @return a string containing the numeric values for the current set of
       parameters */
-  string GetBuoyancyValues(string delimeter);
+  string GetBuoyancyValues(const string& delimeter);
+
+  FGGasCell::Inputs in;
 
 private:
   vector <FGGasCell*> Cells;
   // Buoyant forces and moments. Excluding the gas weight.
-  FGColumnVector3 vTotalForces;
-  FGColumnVector3 vTotalMoments;
+  FGColumnVector3 vTotalForces;  // [lbs]
+  FGColumnVector3 vTotalMoments; // [lbs ft]
 
   // Gas mass related masses, inertias and moments.
-  FGMatrix33 gasCellJ;
+  FGMatrix33 gasCellJ;             // [slug ft^2]
   FGColumnVector3 vGasCellXYZ;
-  FGColumnVector3 vXYZgasCell_arm;
+  FGColumnVector3 vXYZgasCell_arm; // [lbs in]
 
   bool NoneDefined;
 
