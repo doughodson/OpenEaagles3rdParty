@@ -71,7 +71,7 @@ cigicl  : version 3.3.3a
 
 Aero models
 -----------
-JSBSim : pulled from CVS repository 26 June 2011
+JSBSim : pulled from CVS repository 01 March 2013
 
 Binary data storage used by data recorder
 -----------------------------------------
