@@ -1,7 +1,7 @@
 
 ==================================================================
 This package has been provided as a convenience for compiling
-in Windows. It contains the executables, include files and static
+in Windows. It contains the executables, 'include' files and static
 libraries.
 ==================================================================
 
@@ -23,7 +23,7 @@ Libraries
 ------------------------------------------------------------------
 
 freetype: A Free, High-Quality, and Portable Font Engine
-http://freetype.sourceforge.net
+http://www.freetype.org/
 
 FTGL: A free, open source library to enable developers to use
 arbitrary fonts in their OpenGL applications.
@@ -51,6 +51,7 @@ compiled with:
 
 Visual Studio 2008 Service Pack #1 installed
 Visual Studio 2010 Service Pack #1 installed
+Visual Studio 2012 Update 3
 
 ==================================================================
 Version Numbers
@@ -62,7 +63,7 @@ Premake : version 4.4 beta 4
 
 Graphics support
 ----------------
-freetype2 : version 2.4.5
+freetype2 : version 2.5.0.1
 FTGL      : version 2.1.3rc5 (make sure to turn off "Whole Program Optimization")
 
 CIGI visual system interface
@@ -79,7 +80,8 @@ Google protocol buffers : version 2.4.1
 
 Graphical User Interface (GUI) toolkits
 ---------------------------------------
-freeglut: version 2.8.0 RC2.  Note: The standard freeglut header file has been modified
+freeglut: version 2.8.1
+   Note: The standard freeglut header file has been modified
    so that we link against a static library but don't specify its name in the
    header file.
 
