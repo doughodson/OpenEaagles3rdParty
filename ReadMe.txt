@@ -87,6 +87,6 @@ freeglut: version 2.8.0 RC2.  Note: The standard freeglut header file has been m
 #define FREEGLUT_STATIC           // we do want to link to a static library
 #define FREEGLUT_LIB_PRAGMAS 0    // we do not want the default libraries
 
-FLTK: version 1.3.0
+FLTK: version 1.3.2
 
 FOX: version 1.6.49
