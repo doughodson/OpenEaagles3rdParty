@@ -89,4 +89,4 @@ freeglut: version 2.8.0 RC2.  Note: The standard freeglut header file has been m
 
 FLTK: version 1.3.0
 
-FOX: version 1.6.44
+FOX: version 1.6.49
