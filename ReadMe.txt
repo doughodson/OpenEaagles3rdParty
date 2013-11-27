@@ -59,7 +59,7 @@ Version Numbers
 
 Build tool
 ----------
-Premake : version 4.4 beta 4
+Premake : version 4.4 beta 5
 
 Graphics support
 ----------------
