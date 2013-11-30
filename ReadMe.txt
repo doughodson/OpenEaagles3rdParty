@@ -76,7 +76,7 @@ JSBSim : pulled from CVS repository 01 March 2013
 
 Binary data storage used by data recorder
 -----------------------------------------
-Google protocol buffers : version 2.4.1
+Google protocol buffers : version 2.5.0
 
 Graphical User Interface (GUI) toolkits
 ---------------------------------------
