@@ -45,6 +45,9 @@ http://www.jsbsim.org
 Google protocol buffers
 http://code.google.com/p/protobuf/
 
+ZeroMQ
+http://zeromq.org/
+
 Visual Studio note: All included libraries have been compiled
 for a multi-threaded DLL runtime library.  The libraries were
 compiled with:
@@ -92,3 +95,8 @@ freeglut: version 2.8.1
 FLTK: version 1.3.2
 
 FOX: version 1.6.49
+
+Networking
+----------
+ZeroMQ: version 4.0.3
+
