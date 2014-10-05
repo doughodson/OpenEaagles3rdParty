@@ -47,7 +47,7 @@ Version Numbers
 * [Premake] - version 4.4 beta 5
 
 #### Graphics support
-* freetype2 - version 2.5.0.1
+* [freetype2] - version 2.5.0.1
 * [FTGL] - version 2.1.3rc5 (make sure to turn off "Whole Program Optimization")
 
 #### Visual system interface
@@ -79,7 +79,7 @@ Version Numbers
 [Premake]: http://industriousone.com/premake
 [mcpp]: http://mcpp.sourceforge.net/
 [freetype]: http://www.freetype.org/
-[FTGL]: http://homepages.paradise.net.nz/henryj
+[FTGL]: http://sourceforge.net/projects/ftgl/
 [freeglut]: http://freeglut.sourceforge.net
 [CIGI]: http://cigi.sourceforge.net/index.php
 [cigicl]: http://cigi.sourceforge.net/index.php
@@ -88,6 +88,7 @@ Version Numbers
 [ZeroMQ]: http://zeromq.org/
 [FLTK]: http://www.fltk.org/
 [FOX]: http://www.fox-toolkit.org/
+[freetype2]: http://www.freetype.org/freetype2/
 
 
 
