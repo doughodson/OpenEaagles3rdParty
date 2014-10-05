@@ -82,6 +82,7 @@ Version Numbers
 [FTGL]: http://homepages.paradise.net.nz/henryj
 [freeglut]: http://freeglut.sourceforge.net
 [CIGI]: http://cigi.sourceforge.net/index.php
+[cigicl]: http://cigi.sourceforge.net/index.php
 [JSBSIM]: http://www.jsbsim.org
 [Google protocol buffers]: http://code.google.com/p/protobuf/
 [ZeroMQ]: http://zeromq.org/
