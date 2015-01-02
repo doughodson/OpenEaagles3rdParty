@@ -9,7 +9,7 @@ The most current version of OpenEaagles can be found at [www.OpenEaagles.org][1]
 Applications
 ------------
 
-* [Premake]
+* [Premake] - simple build configuration tool
 
 * [mcpp] - portable C preprocessor (used as an alternative to Visual Studio C preprocessor - useful if Visual Studio is not installed on target computer)
 
