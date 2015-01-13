@@ -57,7 +57,7 @@ Version Numbers
 * [JSBSim] - pulled from CVS repository 01 March 2013
 
 #### Binary data storage used by data recorder
-* [Google protocol buffers] - version 2.5.0
+* [Google protocol buffers] - version 2.6.1
 
 #### Graphical User Interface (GUI) toolkits
 * [freeglut] - version 2.8.1 - Note: The standard freeglut header file has been modified so that we link against a static library but don't specify its name in the header file.
