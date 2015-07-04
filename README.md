@@ -36,9 +36,9 @@ Notes
 -----
 
 * Visual Studio note: All included libraries have been compiled for a multi-threaded DLL runtime library.  The libraries were compiled with:
-   * Visual Studio 2008 Service Pack #1 installed
    * Visual Studio 2010 Service Pack #1 installed
    * Visual Studio 2012 Update 3
+   * Visual Studio 2013 Update 4
 
 Version Numbers
 ---------------
