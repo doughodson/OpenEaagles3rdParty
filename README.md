@@ -54,7 +54,7 @@ Version Numbers
 * [cigicl] - version 3.3.3a
 
 #### Aerodynamics models
-* [JSBSim] - pulled from CVS repository 01 March 2013
+* [JSBSim] - pulled from CVS repository 04 July 2015
 
 #### Binary data storage used by data recorder
 * [Google protocol buffers] - version 2.6.1
