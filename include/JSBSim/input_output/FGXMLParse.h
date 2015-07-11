@@ -35,12 +35,13 @@ INCLUDES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
 #include "simgear/xml/easyxml.hxx"
+#include "input_output/FGXMLElement.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_XMLPARSE "$Id: FGXMLParse.h,v 1.7 2009/10/24 22:59:30 jberndt Exp $"
+#define ID_XMLPARSE "$Id: FGXMLParse.h,v 1.9 2014/06/09 11:52:06 bcoconni Exp $"
 #define VALID_CHARS """`!@#$%^&*()_+`1234567890-={}[];':,.<>/?abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -57,7 +58,7 @@ CLASS DOCUMENTATION
 
 /** Encapsulates an XML parser based on the EasyXML parser from the SimGear library.
     @author Jon S. Berndt
-    @version $Id: FGXMLParse.h,v 1.7 2009/10/24 22:59:30 jberndt Exp $
+    @version $Id: FGXMLParse.h,v 1.9 2014/06/09 11:52:06 bcoconni Exp $
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -68,7 +69,6 @@ class FGXMLParse : public XMLVisitor
 {
 public:
   FGXMLParse(void);
-  virtual ~FGXMLParse(void);
 
   Element* GetDocument(void) {return document;}
 
@@ -83,8 +83,8 @@ public:
 
 private:
   bool first_element_read;
-  mutable string working_string;
-  Element *document;
+  mutable std::string working_string;
+  Element_ptr document;
   Element *current_element;
 };
 

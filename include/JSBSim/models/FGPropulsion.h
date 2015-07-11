@@ -44,13 +44,12 @@ INCLUDES
 #include "FGModel.h"
 #include "propulsion/FGEngine.h"
 #include "math/FGMatrix33.h"
-#include "input_output/FGXMLFileRead.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_PROPULSION "$Id: FGPropulsion.h,v 1.31 2011/10/31 14:54:41 bcoconni Exp $"
+#define ID_PROPULSION "$Id: FGPropulsion.h,v 1.35 2015/01/07 23:22:59 dpculp Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -88,11 +87,12 @@ CLASS DOCUMENTATION
         </tank>
         ... more tanks ...
         <dump-rate unit="{LBS/MIN | KG/MIN}"> {number} </dump-rate>
+        <refuel-rate unit="{LBS/MIN | KG/MIN}"> {number} </refuel-rate>
     </propulsion>
   @endcode
 
     @author Jon S. Berndt
-    @version $Id: FGPropulsion.h,v 1.31 2011/10/31 14:54:41 bcoconni Exp $
+    @version $Id: FGPropulsion.h,v 1.35 2015/01/07 23:22:59 dpculp Exp $
     @see
     FGEngine
     FGTank
@@ -102,7 +102,7 @@ CLASS DOCUMENTATION
 CLASS DECLARATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-class FGPropulsion : public FGModel, public FGXMLFileRead
+class FGPropulsion : public FGModel
 {
 public:
   /// Constructor
@@ -183,8 +183,7 @@ public:
   const FGColumnVector3& GetTanksMoment(void);
   double GetTanksWeight(void) const;
 
-  std::ifstream* FindEngineFile(const std::string& filename);
-  std::string FindEngineFullPathname(const std::string& engine_filename);
+  std::string FindFullPathName(const std::string& filename) const;
   inline int GetActiveEngine(void) const {return ActiveEngine;}
   inline bool GetFuelFreeze(void) const {return FuelFreeze;}
   double GetTotalFuelQuantity(void) const {return TotalFuelQuantity;}
@@ -218,6 +217,7 @@ private:
   bool FuelFreeze;
   double TotalFuelQuantity;
   double DumpRate;
+  double RefuelRate;
   bool IsBound;
   bool HavePistonEngine;
   bool HaveTurbineEngine;
@@ -226,8 +226,7 @@ private:
   bool HaveElectricEngine;
   void ConsumeFuel(FGEngine* engine);
 
-  int InitializedEngines;
-  bool HasInitializedEngines;
+  bool ReadingEngine;
 
   void bind();
   void Debug(int from);

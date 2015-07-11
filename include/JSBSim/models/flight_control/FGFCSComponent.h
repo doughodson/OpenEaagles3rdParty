@@ -4,7 +4,7 @@
  Author:       Jon S. Berndt
  Date started: 05/01/2000
 
- ------------- Copyright (C)  -------------
+ ------------- Copyright (C) 2000 Jon S. Berndt (jon@jsbsim.org) -------------
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Lesser General Public License as published by the Free Software
@@ -46,7 +46,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_FCSCOMPONENT "$Id: FGFCSComponent.h,v 1.21 2013/01/26 17:06:50 bcoconni Exp $"
+#define ID_FCSCOMPONENT "$Id: FGFCSComponent.h,v 1.26 2014/02/17 05:33:25 jberndt Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -78,9 +78,11 @@ CLASS DOCUMENTATION
     - FGAccelerometer
     - FGGyro
     - FGActuator
+    - FGWwaypoint
+    - FGAngle
 
     @author Jon S. Berndt
-    @version $Id: FGFCSComponent.h,v 1.21 2013/01/26 17:06:50 bcoconni Exp $
+    @version $Id: FGFCSComponent.h,v 1.26 2014/02/17 05:33:25 jberndt Exp $
     @see Documentation for the FGFCS class, and for the configuration file class
 */
 
@@ -102,6 +104,7 @@ public:
   std::string GetName(void) const {return Name;}
   std::string GetType(void) const { return Type; }
   virtual double GetOutputPct(void) const { return 0; }
+  virtual void ResetPastStates(void);
 
 protected:
   FGFCS* fcs;
@@ -110,6 +113,9 @@ protected:
   std::vector <FGPropertyNode_ptr> OutputNodes;
   FGPropertyNode_ptr ClipMinPropertyNode;
   FGPropertyNode_ptr ClipMaxPropertyNode;
+  std::vector <FGPropertyValue*> InitNodes;
+  std::vector <std::string> InitNames;
+  std::vector <float> InitSigns;
   std::vector <FGPropertyValue*> InputNodes;
   std::vector <std::string> InputNames;
   std::vector <float> InputSigns;

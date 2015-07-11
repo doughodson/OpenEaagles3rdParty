@@ -4,7 +4,7 @@
  Author:       David P. Culp
  Date started: 17/11/06
 
- ------------- Copyright (C) 2006  David P. Culp (davidculp2@comcast.net) -------------
+ ------------- Copyright (C) 2006  David P. Culp (daveculp@cox.net) -------------
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Lesser General Public License as published by the Free Software
@@ -41,14 +41,12 @@ INCLUDES
 #include <vector>
 #include "FGModel.h"
 #include "FGExternalForce.h"
-#include "input_output/FGXMLFileRead.h"
-
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_EXTERNALREACTIONS "$Id: FGExternalReactions.h,v 1.14 2011/10/31 14:54:41 bcoconni Exp $"
+#define ID_EXTERNALREACTIONS "$Id: FGExternalReactions.h,v 1.17 2015/02/27 20:36:47 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -117,7 +115,7 @@ CLASS DOCUMENTATION
 CLASS DECLARATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-class FGExternalReactions : public FGModel, public FGXMLFileRead
+class FGExternalReactions : public FGModel
 {
 public:
   /** Constructor.
@@ -165,7 +163,7 @@ public:
 private:
 
   std::vector <FGExternalForce*> Forces;
-  unsigned int numForces;
+  //unsigned int numForces;
   FGColumnVector3 vTotalForces;
   FGColumnVector3 vTotalMoments;
 

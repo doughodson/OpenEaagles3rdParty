@@ -40,13 +40,12 @@ INCLUDES
 
 #include <vector>
 
+#include "FGSurface.h"
 #include "FGModel.h"
 #include "FGLGear.h"
 #include "math/FGColumnVector3.h"
-#include "input_output/FGXMLElement.h"
-#include "input_output/FGXMLFileRead.h"
 
-#define ID_GROUNDREACTIONS "$Id: FGGroundReactions.h,v 1.25 2012/12/12 06:19:57 jberndt Exp $"
+#define ID_GROUNDREACTIONS "$Id: FGGroundReactions.h,v 1.29 2014/01/16 12:31:49 ehofman Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -79,7 +78,7 @@ CLASS DOCUMENTATION
 CLASS DECLARATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-class FGGroundReactions : public FGModel, public FGXMLFileRead
+class FGGroundReactions : public FGModel, public FGSurface
 {
 public:
   FGGroundReactions(FGFDMExec*);
@@ -99,8 +98,8 @@ public:
   double GetForces(int idx) const {return vForces(idx);}
   const FGColumnVector3& GetMoments(void) const {return vMoments;}
   double GetMoments(int idx) const {return vMoments(idx);}
-  string GetGroundReactionStrings(string delimeter) const;
-  string GetGroundReactionValues(string delimeter) const;
+  std::string GetGroundReactionStrings(std::string delimeter) const;
+  std::string GetGroundReactionValues(std::string delimeter) const;
   bool GetWOW(void) const;
 
   int GetNumGearUnits(void) const { return (int)lGear.size(); }
@@ -111,15 +110,15 @@ public:
   FGLGear* GetGearUnit(int gear) const { return lGear[gear]; }
 
   void RegisterLagrangeMultiplier(LagrangeMultiplier* lmult) { multipliers.push_back(lmult); }
-  vector <LagrangeMultiplier*>* GetMultipliersList(void) { return &multipliers; }
+  std::vector <LagrangeMultiplier*>* GetMultipliersList(void) { return &multipliers; }
 
   FGLGear::Inputs in;
 
 private:
-  vector <FGLGear*> lGear;
+  std::vector <FGLGear*> lGear;
   FGColumnVector3 vForces;
   FGColumnVector3 vMoments;
-  vector <LagrangeMultiplier*> multipliers;
+  std::vector <LagrangeMultiplier*> multipliers;
 
   void bind(void);
   void Debug(int from);

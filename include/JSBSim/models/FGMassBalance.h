@@ -43,14 +43,12 @@ INCLUDES
 #include "FGModel.h"
 #include "math/FGColumnVector3.h"
 #include "math/FGMatrix33.h"
-#include "input_output/FGXMLElement.h"
-#include "input_output/FGXMLFileRead.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_MASSBALANCE "$Id: FGMassBalance.h,v 1.28 2012/12/12 06:19:57 jberndt Exp $"
+#define ID_MASSBALANCE "$Id: FGMassBalance.h,v 1.35 2015/03/28 14:49:02 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONSS
@@ -108,7 +106,7 @@ CLASS DOCUMENTATION
 CLASS DECLARATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-class FGMassBalance : public FGModel, public FGXMLFileRead
+class FGMassBalance : public FGModel
 {
 
 public:
@@ -178,7 +176,7 @@ public:
   const FGMatrix33& GetJ(void) const {return mJ;}
   const FGMatrix33& GetJinv(void) const {return mJinv;}
   void SetAircraftBaseInertias(const FGMatrix33& BaseJ) {baseJ = BaseJ;}
-  void GetMassPropertiesReport(void) const;
+  void GetMassPropertiesReport(int i);
   
   struct Inputs {
     double GasMass;
@@ -261,14 +259,18 @@ private:
     const string& GetName(void) {return Name;}
 
     void SetPointMassLocation(int axis, double value) {Location(axis) = value;}
-    void SetPointMassWeight(double wt) {Weight = wt;}
+    void SetPointMassWeight(double wt) {
+      Weight = wt;
+      CalculateShapeInertia();
+    }
     void SetPointMassShapeType(esShape st) {eShapeType = st;}
     void SetRadius(double r) {Radius = r;}
     void SetLength(double l) {Length = l;}
     void SetName(string name) {Name = name;}
+    void SetPointMassMoI(const FGMatrix33& MoI) { mPMInertia = MoI; }
     double GetPointMassMoI(int r, int c) {return mPMInertia(r,c);}
 
-    void bind(FGPropertyManager* PropertyManager, int num);
+    void bind(FGPropertyManager* PropertyManager, unsigned int num);
   };
 
   std::vector <struct PointMass*> PointMasses;

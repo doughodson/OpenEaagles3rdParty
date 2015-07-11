@@ -43,12 +43,13 @@ INCLUDES
 #include "models/propulsion/FGForce.h"
 #include "math/FGColumnVector3.h"
 #include "math/LagrangeMultiplier.h"
+#include "FGSurface.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_LGEAR "$Id: FGLGear.h,v 1.56 2012/12/15 15:16:16 bcoconni Exp $"
+#define ID_LGEAR "$Id: FGLGear.h,v 1.64 2014/01/28 09:42:21 ehofman Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -177,7 +178,7 @@ CLASS DOCUMENTATION
         </contact>
 @endcode
     @author Jon S. Berndt
-    @version $Id: FGLGear.h,v 1.56 2012/12/15 15:16:16 bcoconni Exp $
+    @version $Id: FGLGear.h,v 1.64 2014/01/28 09:42:21 ehofman Exp $
     @see Richard E. McFarland, "A Standard Kinematic Model for Flight Simulation at
      NASA-Ames", NASA CR-2497, January 1975
     @see Barnes W. McCormick, "Aerodynamics, Aeronautics, and Flight Mechanics",
@@ -190,7 +191,7 @@ CLASS DOCUMENTATION
 CLASS DECLARATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-class FGLGear : public FGForce
+class FGLGear : protected FGSurface, public FGForce
 {
 public:
   struct Inputs {
@@ -236,8 +237,10 @@ public:
   /// Destructor
   ~FGLGear();
 
-  /// The Force vector for this gear
-  const FGColumnVector3& GetBodyForces(void);
+  /** The Force vector for this gear
+      @param surface another surface to interact with, set to NULL for none.
+   */
+  const FGColumnVector3& GetBodyForces(FGSurface *surface = NULL);
 
   /// Gets the location of the gear in Body axes
   FGColumnVector3 GetBodyLocation(void) const {
@@ -252,7 +255,7 @@ public:
   double GetLocalGear(int idx) const { return vLocalGear(idx); }
 
   /// Gets the name of the gear
-  const string& GetName(void) const {return name; }
+  const std::string& GetName(void) const {return name; }
   /// Gets the Weight On Wheels flag value
   bool    GetWOW(void) const {return WOW; }
   /// Gets the current compressed length of the gear in feet
@@ -315,6 +318,7 @@ public:
 
   const struct Inputs& in;
 
+  void ResetToIC(void);
   void bind(void);
 
 private:
@@ -332,7 +336,7 @@ private:
   double bDampRebound;
   double compressLength;
   double compressSpeed;
-  double staticFCoeff, dynamicFCoeff, rollingFCoeff;
+  double rollingFCoeff;
   double Stiffness, Shape, Peak, Curvature; // Pacejka factors
   double BrakeFCoeff;
   double maxCompLen;
@@ -380,6 +384,7 @@ private:
   void ComputeGroundFrame(void);
   void ComputeJacobian(const FGColumnVector3& vWhlContactVec);
   void UpdateForces(void);
+  void SetstaticFCoeff(double coeff);
   void CrashDetect(void);
   void InitializeReporting(void);
   void ResetReporting(void);

@@ -43,7 +43,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_XMLFILEREAD "$Id: FGXMLFileRead.h,v 1.7 2012/12/12 06:19:57 jberndt Exp $"
+#define ID_XMLFILEREAD "$Id: FGXMLFileRead.h,v 1.9 2013/12/01 14:33:51 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -56,13 +56,11 @@ public:
   FGXMLFileRead(void) {}
   ~FGXMLFileRead(void) {}
 
-protected:
-  Element* document;
   Element* LoadXMLDocument(std::string XML_filename, bool verbose=true)
   {
-    return LoadXMLDocument(XML_filename, file_parser, true);
+    return LoadXMLDocument(XML_filename, file_parser, verbose);
   }
-  
+
   Element* LoadXMLDocument(std::string XML_filename, FGXMLParse& fparse, bool verbose=true)
   {
     std::ifstream infile;
@@ -80,12 +78,12 @@ protected:
     }
 
     readXML(infile, fparse, XML_filename);
-    document = fparse.GetDocument();
+    Element* document = fparse.GetDocument();
     infile.close();
-    
+
     return document;
   }
-  
+
   void ResetParser(void) {file_parser.reset();}
 
 private:

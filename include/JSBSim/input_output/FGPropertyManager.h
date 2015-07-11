@@ -53,7 +53,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_PROPERTYMANAGER "$Id: FGPropertyManager.h,v 1.25 2013/01/26 17:06:49 bcoconni Exp $"
+#define ID_PROPERTYMANAGER "$Id: FGPropertyManager.h,v 1.29 2014/11/15 11:32:54 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -233,7 +233,7 @@ class FGPropertyNode : public SGPropertyNode
      * Assign a bool value to a property.  If the property does not
      * yet exist, it will be created and its type will be set to
      * BOOL; if it has a type of UNKNOWN, the type will also be set to
-     * BOOL; otherwise, the bool value will be converted to the property's
+     * BOOL; otherwise, the value type will be converted to the property's
      * type.
      *
      * @param name The property name.
@@ -249,7 +249,7 @@ class FGPropertyNode : public SGPropertyNode
      * Assign an int value to a property.  If the property does not
      * yet exist, it will be created and its type will be set to
      * INT; if it has a type of UNKNOWN, the type will also be set to
-     * INT; otherwise, the bool value will be converted to the property's
+     * INT; otherwise, the value type will be converted to the property's
      * type.
      *
      * @param name The property name.
@@ -265,7 +265,7 @@ class FGPropertyNode : public SGPropertyNode
      * Assign a long value to a property.  If the property does not
      * yet exist, it will be created and its type will be set to
      * LONG; if it has a type of UNKNOWN, the type will also be set to
-     * LONG; otherwise, the bool value will be converted to the property's
+     * LONG; otherwise, the value type will be converted to the property's
      * type.
      *
      * @param name The property name.
@@ -281,7 +281,7 @@ class FGPropertyNode : public SGPropertyNode
      * Assign a float value to a property.  If the property does not
      * yet exist, it will be created and its type will be set to
      * FLOAT; if it has a type of UNKNOWN, the type will also be set to
-     * FLOAT; otherwise, the bool value will be converted to the property's
+     * FLOAT; otherwise, the value type will be converted to the property's
      * type.
      *
      * @param name The property name.
@@ -393,7 +393,12 @@ class FGPropertyManager
     { return root->GetNode(path, create); }
     FGPropertyNode* GetNode(const std::string &relpath, int index, bool create = false)
     { return root->GetNode(relpath, index, create); }
-    bool HasNode(const std::string& path) const { return root->HasNode(path); }
+    bool HasNode(const std::string& path) const
+    {
+      std::string newPath = path;
+      if (newPath[0] == '-') newPath.erase(0,1);
+      return root->HasNode(newPath);
+    }
 
     /** Property-ify a name
      *  replaces spaces with '-' and, optionally, makes name all lower case
@@ -558,6 +563,8 @@ class FGPropertyManager
       if (!property->tie(SGRawValueFunctions<V>(getter, setter), useDefault))
         std::cerr << "Failed to tie property " << name << " to functions" << std::endl;
       else {
+        if (setter == 0) property->setAttribute(SGPropertyNode::WRITE, false);
+        if (getter == 0) property->setAttribute(SGPropertyNode::READ, false);
         tied_properties.push_back(property);
         if (FGJSBBase::debug_lvl & 0x20) std::cout << name << std::endl;
       }
@@ -594,6 +601,8 @@ class FGPropertyManager
       if (!property->tie(SGRawValueFunctionsIndexed<V>(index, getter, setter), useDefault))
         std::cerr << "Failed to tie property " << name << " to indexed functions" << std::endl;
       else {
+        if (setter == 0) property->setAttribute(SGPropertyNode::WRITE, false);
+        if (getter == 0) property->setAttribute(SGPropertyNode::READ, false);
         tied_properties.push_back(property);
         if (FGJSBBase::debug_lvl & 0x20) std::cout << name << std::endl;
       }
@@ -632,6 +641,8 @@ class FGPropertyManager
       if (!property->tie(SGRawValueMethods<T,V>(*obj, getter, setter), useDefault))
         std::cerr << "Failed to tie property " << name << " to object methods" << std::endl;
       else {
+        if (setter == 0) property->setAttribute(SGPropertyNode::WRITE, false);
+        if (getter == 0) property->setAttribute(SGPropertyNode::READ, false);
         tied_properties.push_back(property);
         if (FGJSBBase::debug_lvl & 0x20) std::cout << name << std::endl;
       }
@@ -669,6 +680,8 @@ class FGPropertyManager
       if (!property->tie(SGRawValueMethodsIndexed<T,V>(*obj, index, getter, setter), useDefault))
         std::cerr << "Failed to tie property " << name << " to indexed object methods" << std::endl;
       else {
+        if (setter == 0) property->setAttribute(SGPropertyNode::WRITE, false);
+        if (getter == 0) property->setAttribute(SGPropertyNode::READ, false);
         tied_properties.push_back(property);
         if (FGJSBBase::debug_lvl & 0x20) std::cout << name << std::endl;
       }

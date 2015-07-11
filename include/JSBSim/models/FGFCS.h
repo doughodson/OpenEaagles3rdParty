@@ -45,13 +45,12 @@ INCLUDES
 #include "models/flight_control/FGFCSComponent.h"
 #include "models/FGModel.h"
 #include "models/FGLGear.h"
-#include "input_output/FGXMLFileRead.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_FCS "$Id: FGFCS.h,v 1.41 2012/10/15 05:02:29 jberndt Exp $"
+#define ID_FCS "$Id: FGFCS.h,v 1.47 2015/02/27 20:36:47 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -169,7 +168,7 @@ CLASS DOCUMENTATION
     @property gear/tailhook-pos-norm
 
     @author Jon S. Berndt
-    @version $Revision: 1.41 $
+    @version $Revision: 1.47 $
     @see FGActuator
     @see FGDeadBand
     @see FGFCSFunction
@@ -180,15 +179,18 @@ CLASS DOCUMENTATION
     @see FGSensor
     @see FGSummer
     @see FGSwitch
+    @see FGWaypoint
+    @see FGAngles
     @see FGFCSComponent
     @see Element
+    @see FGDistributor
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CLASS DECLARATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-class FGFCS : public FGModel, public FGXMLFileRead
+class FGFCS : public FGModel
 {
 
 public:
@@ -244,14 +246,14 @@ public:
       @return throttle command in range from 0 - 1.0 for the given engine */
   double GetThrottleCmd(int engine) const;
 
-  const vector<double>& GetThrottleCmd() const {return ThrottleCmd;}
+  const std::vector<double>& GetThrottleCmd() const {return ThrottleCmd;}
 
   /** Gets the mixture command.
       @param engine engine ID number
       @return mixture command in range from 0 - 1.0 for the given engine */
   double GetMixtureCmd(int engine) const { return MixtureCmd[engine]; }
 
-  const vector<double>& GetMixtureCmd() const {return MixtureCmd;}
+  const std::vector<double>& GetMixtureCmd() const {return MixtureCmd;}
 
   /** Gets the prop pitch command.
       @param engine engine ID number
@@ -323,20 +325,20 @@ public:
       @return throttle position for the given engine in range from 0 - 1.0 */
   double GetThrottlePos(int engine) const;
 
-  const vector<double>& GetThrottlePos() const {return ThrottlePos;}
+  const std::vector<double>& GetThrottlePos() const {return ThrottlePos;}
 
   /** Gets the mixture position.
       @param engine engine ID number
       @return mixture position for the given engine in range from 0 - 1.0 */
   double GetMixturePos(int engine) const { return MixturePos[engine]; }
 
-  const vector<double>& GetMixturePos() const {return MixturePos;}
+  const std::vector<double>& GetMixturePos() const {return MixturePos;}
 
   /** Gets the steering position.
       @return steering position in degrees */
   double GetSteerPosDeg(int gear) const { return SteerPosDeg[gear]; }
 
-  const vector<double>& GetSteerPosDeg() const {return SteerPosDeg;}
+  const std::vector<double>& GetSteerPosDeg() const {return SteerPosDeg;}
 
   /** Gets the gear position (0 up, 1 down), defaults to down
       @return gear position (0 up, 1 down) */
@@ -355,14 +357,14 @@ public:
       @return prop pitch position for the given engine in range from 0 - 1.0 */
   double GetPropAdvance(int engine) const { return PropAdvance[engine]; }
 
-  const vector<double>& GetPropAdvance() const { return PropAdvance; }
+  const std::vector<double>& GetPropAdvance() const { return PropAdvance; }
 
   /** Gets the prop feather position.
       @param engine engine ID number
       @return prop fether for the given engine (on / off)*/
   bool GetPropFeather(int engine) const { return PropFeather[engine]; }
 
-  const vector<bool>& GetPropFeather() const { return PropFeather; }
+  const std::vector<bool>& GetPropFeather() const { return PropFeather; }
   //@}
 
   /** Retrieves all component names for inclusion in output stream
@@ -529,7 +531,7 @@ public:
       @return the brake setting for the supplied brake group argument */
   double GetBrake(FGLGear::BrakeGroup bg);
 
-  const vector<double>& GetBrakePos() const {return BrakePos;}
+  const std::vector<double>& GetBrakePos() const {return BrakePos;}
 
   /** Gets the left brake.
       @return the left brake setting. */
@@ -553,8 +555,7 @@ public:
       @return true if succesful */
   bool Load(Element* el, SystemType systype);
 
-  std::ifstream* FindSystemFile(const std::string& system_filename);
-  std::string FindSystemFullPathname(const std::string& system_filename);
+  std::string FindFullPathName(const std::string& system_filename) const;
 
   void AddThrottle(void);
   void AddGear(unsigned int NumGear);
@@ -582,10 +583,11 @@ private:
   std::vector <bool> PropFeatherCmd;
   std::vector <bool> PropFeather;
   std::vector <double> SteerPosDeg;
-  double LeftBrake, RightBrake, CenterBrake; // Brake settings
-  vector <double> BrakePos; // left, center, right - defined by FGLGear:: enum
+  //double LeftBrake, RightBrake, CenterBrake; // Brake settings
+  std::vector <double> BrakePos; // left, center, right - defined by FGLGear:: enum
   double GearCmd,GearPos;
   double TailhookPos, WingFoldPos;
+  SystemType systype;
 
   typedef std::vector <FGFCSChannel*> Channels;
   Channels SystemChannels;

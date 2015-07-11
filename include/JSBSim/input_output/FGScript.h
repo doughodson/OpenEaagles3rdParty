@@ -38,24 +38,27 @@ INCLUDES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
 #include <vector>
+#include <map>
 
-#include "FGFDMExec.h"
 #include "FGJSBBase.h"
-#include "math/FGFunction.h"
-#include "math/FGCondition.h"
-#include "input_output/FGXMLFileRead.h"
+#include "FGPropertyReader.h"
+#include "input_output/FGPropertyManager.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_FGSCRIPT "$Id: FGScript.h,v 1.23 2013/01/26 17:06:49 bcoconni Exp $"
+#define ID_FGSCRIPT "$Id: FGScript.h,v 1.29 2014/05/29 18:46:44 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
 namespace JSBSim {
+
+class FGFDMExec;
+class FGCondition;
+class FGFunction;
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CLASS DOCUMENTATION
@@ -158,14 +161,14 @@ CLASS DOCUMENTATION
     comes the &quot;run&quot; section, where the conditions are
     described in &quot;event&quot; clauses.</p>
     @author Jon S. Berndt
-    @version "$Id: FGScript.h,v 1.23 2013/01/26 17:06:49 bcoconni Exp $"
+    @version "$Id: FGScript.h,v 1.29 2014/05/29 18:46:44 bcoconni Exp $"
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CLASS DECLARATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-class FGScript : public FGJSBBase, public FGXMLFileRead
+class FGScript : public FGJSBBase
 {
 public:
   /// Default constructor
@@ -184,16 +187,14 @@ public:
                       default. If a file name is passed in, it will override the
                       one present in the script.
       @return true if successful */
-  bool LoadScript(string script, double deltaT, const string initfile);
+  bool LoadScript(std::string script, double deltaT, const std::string initfile);
 
   /** This function is called each pass through the executive Run() method IF
       scripting is enabled.
       @return false if script should exit (i.e. if time limits are violated */
   bool RunScript(void);
 
-  void ResetEvents(void) {
-    for (unsigned int i=0; i<Events.size(); i++) Events[i].reset();
-  }
+  void ResetEvents(void);
 
 private:
   enum eAction {
@@ -214,31 +215,34 @@ private:
     bool             Continuous;
     bool             Triggered;
     bool             Notify;
+    bool             NotifyKML;
     bool             Notified;
     double           Delay;
     double           StartTime;
     double           TimeSpan;
-    string           Name;
-    string           Description;
-    vector <FGPropertyNode_ptr>  SetParam;
-    vector <FGPropertyNode_ptr>  NotifyProperties;
-    vector <string>              DisplayString;
-    vector <eAction> Action;
-    vector <eType>   Type;
-    vector <double>  SetValue;
-    vector <double>  TC;
-    vector <double>  newValue;
-    vector <double>  OriginalValue;
-    vector <double>  ValueSpan;
-    vector <bool>    Transiting;
-    vector <FGFunction*> Functions;
+    std::string           Name;
+    std::string           Description;
+    std::vector <FGPropertyNode_ptr>  SetParam;
+    std::vector <std::string>  SetParamName;
+    std::vector <FGPropertyNode_ptr>  NotifyProperties;
+    std::vector <std::string>              NotifyPropertyNames;
+    std::vector <std::string>              DisplayString;
+    std::vector <eAction> Action;
+    std::vector <eType>   Type;
+    std::vector <double>  SetValue;
+    std::vector <double>  TC;
+    std::vector <double>  newValue;
+    std::vector <double>  OriginalValue;
+    std::vector <double>  ValueSpan;
+    std::vector <bool>    Transiting;
+    std::vector <FGFunction*> Functions;
 
     event() {
       Triggered = false;
       Persistent = false;
       Continuous = false;
       Delay = 0.0;
-      Notify = Notified = false;
+      Notify = Notified = NotifyKML = false;
       Name = "";
       StartTime = 0.0;
       TimeSpan = 0.0;
@@ -251,20 +255,12 @@ private:
     }
   };
 
-  struct LocalProps {
-    double *value;
-    string title;
-    LocalProps(double initial_value=0) {
-      value = new double(initial_value);
-      title = "";
-    }
-  };
-
-  string  ScriptName;
+  std::string  ScriptName;
   double  StartTime;
   double  EndTime;
-  vector <struct event> Events;
-  vector <LocalProps*> local_properties;
+  std::vector <struct event> Events;
+
+  FGPropertyReader LocalProperties;
 
   FGFDMExec* FDMExec;
   FGPropertyManager* PropertyManager;

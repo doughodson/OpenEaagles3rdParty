@@ -48,7 +48,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_AUXILIARY "$Id: FGAuxiliary.h,v 1.27 2012/09/15 11:17:21 bcoconni Exp $"
+#define ID_AUXILIARY "$Id: FGAuxiliary.h,v 1.29 2014/12/27 05:41:11 dpculp Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -99,7 +99,7 @@ CLASS DOCUMENTATION
     to the JSBSim vPQRdot vector, and the w parameter is equivalent to vPQR.
 
     @author Tony Peden, Jon Berndt
-    @version $Id: FGAuxiliary.h,v 1.27 2012/09/15 11:17:21 bcoconni Exp $
+    @version $Id: FGAuxiliary.h,v 1.29 2014/12/27 05:41:11 dpculp Exp $
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -225,6 +225,9 @@ public:
   /** The vertical acceleration in g's of the aircraft center of gravity. */
   double GetNz            (void) const { return Nz;         }
 
+  /** The lateral acceleration in g's of the aircraft center of gravity. */
+  double GetNy            (void) const { return Ny;         }
+
   const FGColumnVector3& GetNwcg(void) const { return vNwcg; }
 
   double GetHOverBCG(void) const { return hoverbcg; }
@@ -286,6 +289,7 @@ public:
     FGColumnVector3 TurbPQR;
     double WindPsi;
     double Vwind;
+    double PitotAngle;
   } in;
 
 private:
@@ -294,6 +298,7 @@ private:
 
   FGMatrix33 mTw2b;
   FGMatrix33 mTb2w;
+  FGMatrix33 mTw2p;
 
   FGColumnVector3 vPilotAccel;
   FGColumnVector3 vPilotAccelN;
@@ -304,15 +309,18 @@ private:
   FGColumnVector3 vEuler;
   FGColumnVector3 vEulerRates;
   FGColumnVector3 vMachUVW;
+  FGColumnVector3 vWindUVW;
+  FGColumnVector3 vPitotUVW;
   FGLocation vLocationVRP;
 
-  double Vt, Vground, Mach, MachU;
+  double Vt, Vground, Vpitot;
+  double Mach, MachU, MachPitot;
   double qbar, qbarUW, qbarUV;
   double Re; // Reynolds Number = V*c/mu
   double alpha, beta;
   double adot,bdot;
   double psigt, gamma;
-  double Nz;
+  double Nz, Ny;
   double seconds_in_day;  // seconds since current GMT day began
   int    day_of_year;     // GMT day, 1 .. 366
 

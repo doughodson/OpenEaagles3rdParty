@@ -4,7 +4,7 @@
  Author:       Anders Gidenstam
  Date started: 01/21/2006
 
- ----- Copyright (C) 2006 - 2011  Anders Gidenstam (anders(at)gidenstam.org) --
+ ----- Copyright (C) 2006 - 2013  Anders Gidenstam (anders(at)gidenstam.org) --
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Lesser General Public License as published by the Free Software
@@ -50,7 +50,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_GASCELL "$Id: FGGasCell.h,v 1.12 2011/08/06 13:47:59 jberndt Exp $"
+#define ID_GASCELL "$Id: FGGasCell.h,v 1.16 2015/03/28 14:49:02 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -183,7 +183,8 @@ public:
       @param exec Executive a pointer to the parent executive object
       @param el   Pointer to configuration file XML node
       @param num  Gas cell index number. */
-  FGGasCell(FGFDMExec* exec, Element* el, int num, const struct Inputs& input);
+  FGGasCell(FGFDMExec* exec, Element* el, unsigned int num,
+            const struct Inputs& input);
   ~FGGasCell();
 
   /** Runs the gas cell model; called by BuoyantForces
@@ -236,23 +237,23 @@ private:
 
   GasType Type;
   std::string type;
-  int CellNum;
+  unsigned int CellNum;
   // Structural constants
-  double MaxVolume;                 // [ft^2]
+  double MaxVolume;                 // [ft^3]
   double MaxOverpressure;           // [lbs/ft^2]
   FGColumnVector3 vXYZ;             // [in]
   double Xradius, Yradius, Zradius; // [ft]
   double Xwidth, Ywidth, Zwidth;    // [ft]
   double ValveCoefficient;          // [ft^4 sec / slug]
-  typedef vector <FGFunction*> CoeffArray;
+  typedef std::vector <FGFunction*> CoeffArray;
   CoeffArray HeatTransferCoeff;
-  typedef vector <FGBallonet*> BallonetArray;
+  typedef std::vector <FGBallonet*> BallonetArray;
   BallonetArray Ballonet;
   // Variables
   double Pressure;          // [lbs/ft^2]
   double Contents;          // [mol]
-  double Volume;            // [ft^2]
-  double dVolumeIdeal;      // [ft^2]
+  double Volume;            // [ft^3]
+  double dVolumeIdeal;      // [ft^3]
   double Temperature;       // [Rankine]
   double Buoyancy;          // [lbs] Note: Gross lift.
                             // Does not include the weight of the gas itself.
@@ -261,7 +262,6 @@ private:
   FGMatrix33 gasCellJ;      // [slug foot^2]
   FGColumnVector3 gasCellM; // [lbs in]
 
-  FGPropertyManager* PropertyManager;
   FGMassBalance* MassBalance;
   void Debug(int from);
 
@@ -308,7 +308,8 @@ private:
 class FGBallonet : public FGJSBBase
 {
 public:
-  FGBallonet(FGFDMExec* exec, Element* el, int num, FGGasCell* parent, const struct FGGasCell::Inputs& input);
+  FGBallonet(FGFDMExec* exec, Element* el, unsigned int num, FGGasCell* parent,
+             const struct FGGasCell::Inputs& input);
   ~FGBallonet();
 
   /** Runs the ballonet model; called by FGGasCell
@@ -342,29 +343,28 @@ public:
   const struct FGGasCell::Inputs& in;
 
 private:
-  int CellNum;
+  unsigned int CellNum;
   // Structural constants
-  double MaxVolume;                 // [ft^2]
+  double MaxVolume;                 // [ft^3]
   double MaxOverpressure;           // [lbs/ft^2]
   FGColumnVector3 vXYZ;             // [in]
   double Xradius, Yradius, Zradius; // [ft]
   double Xwidth, Ywidth, Zwidth;    // [ft]
   double ValveCoefficient;          // [ft^4 sec / slug]
-  typedef vector <FGFunction*> CoeffArray;
+  typedef std::vector <FGFunction*> CoeffArray;
   CoeffArray HeatTransferCoeff;     // [lbs ft / sec]
   FGFunction* BlowerInput;          // [ft^3 / sec]
   FGGasCell* Parent;
   // Variables
   double Pressure;         // [lbs/ft^2]
   double Contents;         // [mol]
-  double Volume;           // [ft^2]
-  double dVolumeIdeal;     // [ft^2]
+  double Volume;           // [ft^3]
+  double dVolumeIdeal;     // [ft^3]
   double dU;               // [lbs ft / sec]
   double Temperature;      // [Rankine]
   double ValveOpen;        // 0 <= ValveOpen <= 1 (or higher).
   FGMatrix33 ballonetJ;     // [slug foot^2]
 
-  FGPropertyManager* PropertyManager;
   FGMassBalance* MassBalance;
   void Debug(int from);
 

@@ -46,13 +46,12 @@ INCLUDES
 #include "math/FGFunction.h"
 #include "math/FGColumnVector3.h"
 #include "math/FGMatrix33.h"
-#include "input_output/FGXMLFileRead.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_AERODYNAMICS "$Id: FGAerodynamics.h,v 1.26 2012/07/26 04:33:46 jberndt Exp $"
+#define ID_AERODYNAMICS "$Id: FGAerodynamics.h,v 1.30 2014/09/03 17:26:28 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -109,14 +108,14 @@ CLASS DOCUMENTATION
     Systems may NOT be combined, or a load error will occur.
 
     @author Jon S. Berndt, Tony Peden
-    @version $Revision: 1.26 $
+    @version $Revision: 1.30 $
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CLASS DECLARATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-class FGAerodynamics : public FGModel, public FGXMLFileRead
+class FGAerodynamics : public FGModel
 {
 
 public:
@@ -232,23 +231,28 @@ private:
   typedef std::map<std::string,int> AxisIndex;
   AxisIndex AxisIdx;
   FGFunction* AeroRPShift;
-  typedef vector <FGFunction*> AeroFunctionArray;
+  typedef std::vector <FGFunction*> AeroFunctionArray;
   AeroFunctionArray* AeroFunctions;
   FGColumnVector3 vFnative;
   FGColumnVector3 vFw;
   FGColumnVector3 vForces;
+  AeroFunctionArray* AeroFunctionsAtCG;
+  FGColumnVector3 vFwAtCG;
+  FGColumnVector3 vFnativeAtCG;
+  FGColumnVector3 vForcesAtCG;
   FGColumnVector3 vMoments;
   FGColumnVector3 vMomentsMRC;
   FGColumnVector3 vDXYZcg;
   FGColumnVector3 vDeltaRP;
   double alphaclmax, alphaclmin;
+  double alphaclmax0, alphaclmin0;
   double alphahystmax, alphahystmin;
   double impending_stall, stall_hyst;
   double bi2vel, ci2vel,alphaw;
   double clsq, lod, qbar_area;
 
   typedef double (FGAerodynamics::*PMF)(int) const;
-  void DetermineAxisSystem(void);
+  void DetermineAxisSystem(Element* document);
   void bind(void);
 
   void Debug(int from);

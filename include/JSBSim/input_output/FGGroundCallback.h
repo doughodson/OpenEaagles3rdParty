@@ -45,7 +45,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_GROUNDCALLBACK "$Id: FGGroundCallback.h,v 1.16 2013/02/02 13:23:40 bcoconni Exp $"
+#define ID_GROUNDCALLBACK "$Id: FGGroundCallback.h,v 1.18 2014/11/30 12:35:32 bcoconni Exp $"
 
 namespace JSBSim {
 
@@ -62,7 +62,7 @@ CLASS DOCUMENTATION
     ball formed earth with an adjustable terrain elevation.
 
     @author Mathias Froehlich
-    @version $Id: FGGroundCallback.h,v 1.16 2013/02/02 13:23:40 bcoconni Exp $
+    @version $Id: FGGroundCallback.h,v 1.18 2014/11/30 12:35:32 bcoconni Exp $
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -73,7 +73,7 @@ class FGGroundCallback : public SGReferenced
 {
 public:
 
-  FGGroundCallback() {}
+  FGGroundCallback() : time(0.0) {}
   virtual ~FGGroundCallback() {}
 
   /** Compute the altitude above sealevel
@@ -96,14 +96,33 @@ public:
                             FGColumnVector3& normal, FGColumnVector3& v,
                             FGColumnVector3& w) const = 0;
 
+  /** Compute the altitude above ground.
+      The altitude depends on location l.
+      @param l location
+      @param contact Contact point location below the location l
+      @param normal Normal vector at the contact point
+      @param v Linear velocity at the contact point
+      @param w Angular velocity at the contact point
+      @return altitude above ground
+   */
+  virtual double GetAGLevel(const FGLocation& location, FGLocation& contact,
+                            FGColumnVector3& normal, FGColumnVector3& v,
+                            FGColumnVector3& w) const
+  { return GetAGLevel(time, location, contact, normal, v, w); }
+
   /** Compute the local terrain radius
       @param t simulation time
       @param location location
    */
   virtual double GetTerrainGeoCentRadius(double t, const FGLocation& location) const = 0;
 
+  /** Compute the local terrain radius
+      @param location location
+   */
+  virtual double GetTerrainGeoCentRadius(const FGLocation& location) const
+  { return GetTerrainGeoCentRadius(time, location); }
+
   /** Return the sea level radius
-      @param t simulation time
       @param location location
    */
   virtual double GetSeaLevelRadius(const FGLocation& location) const = 0;
@@ -120,6 +139,10 @@ public:
    */
   virtual void SetSeaLevelRadius(double radius) {  }
 
+  void SetTime(double _time) { time = _time; }
+
+private:
+  double time;
 };
 
 typedef SGSharedPtr<FGGroundCallback> FGGroundCallback_ptr;
@@ -132,7 +155,8 @@ class FGDefaultGroundCallback : public FGGroundCallback
 {
 public:
 
-   FGDefaultGroundCallback(double referenceRadius = 20925650.0);
+   // This should not be hardcoded, but retrieved from FGInertial
+   FGDefaultGroundCallback(double referenceRadius);
 
    double GetAltitude(const FGLocation& l) const;
 

@@ -38,13 +38,14 @@ INCLUDES
 #include <map>
 #include <vector>
 
+#include "simgear/structure/SGSharedPtr.hxx"
 #include "math/FGColumnVector3.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_XMLELEMENT "$Id: FGXMLElement.h,v 1.17 2012/07/26 04:33:46 jberndt Exp $"
+#define ID_XMLELEMENT "$Id: FGXMLElement.h,v 1.24 2014/06/29 10:13:18 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -136,14 +137,17 @@ CLASS DOCUMENTATION
     - GAL = gallon (U.S. liquid) 
 
     @author Jon S. Berndt
-    @version $Id: FGXMLElement.h,v 1.17 2012/07/26 04:33:46 jberndt Exp $
+    @version $Id: FGXMLElement.h,v 1.24 2014/06/29 10:13:18 bcoconni Exp $
 */
+
+class Element;
+typedef SGSharedPtr<Element> Element_ptr;
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CLASS DECLARATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-class Element {
+class Element : public SGReferenced {
 public:
   /** Constructor
       @param nm the name of this element (if given)
@@ -155,13 +159,21 @@ public:
   /** Determines if an element has the supplied attribute.
       @param key specifies the attribute key to retrieve the value of.
       @return true or false. */
-  bool HasAttribute(const std::string& key);
+  bool HasAttribute(const std::string& key) {return attributes.find(key) != attributes.end();}
 
   /** Retrieves an attribute.
       @param key specifies the attribute key to retrieve the value of.
       @return the key value (as a string), or the empty string if no such
               attribute exists. */
   std::string GetAttributeValue(const std::string& key);
+
+  /** Modifies an attribute.
+      @param key specifies the attribute key to modify the value of.
+      @param value new key value (as a string).
+      @return false if it did not find any attribute with the requested key,
+              true otherwise.
+   */
+  bool SetAttributeValue(const std::string& key, const std::string& value);
 
   /** Retrieves an attribute value as a double precision real number.
       @param key specifies the attribute key to retrieve the value of.
@@ -217,6 +229,16 @@ public:
   /** Returns a pointer to the parent of an element.
       @return a pointer to the parent Element, or 0 if this is the top level Element. */
   Element* GetParent(void) {return parent;}
+
+  /** Returns the line number at which the element has been defined.
+      @return the line number
+   */
+  int GetLineNumber(void) const { return line_number; }
+
+  /** Returns the name of the file in which the element has been read.
+      @return the file name
+  */
+  const std::string& GetFileName(void) const { return file_name; }
 
   /** Searches for a specified element.
       Finds the first element that matches the supplied string, or simply the first
@@ -331,18 +353,44 @@ public:
   *   @param d The tab level. A level corresponds to a single space. */
   void Print(unsigned int level=0);
 
+  /** Set the line number at which the element has been read.
+   *  @param line line number.
+   */
+  void SetLineNumber(int line) { line_number = line; }
+
+  /** Set the name of the file in which the element has been read.
+   *  @param name file name
+   */
+  void SetFileName(const std::string& name) { file_name = name; }
+
+  /** Return a string that contains a description of the location where the
+   *  current XML element was read from.
+   *  @return a string describing the file name and line number where the
+   *          element was read.
+   */
+  std::string ReadFrom(void) const;
+
+  /** Merges the attributes of the current element with another element. The
+   *  attributes from the current element override the element that is passed
+   *  as a parameter. In other words if the two elements have an attribute with
+   *  the same name, the attribute from the current element is kept and the
+   *  corresponding attribute of the other element is ignored.
+   *  @param el element with which the current element will merge its attributes.
+   */
+  void MergeAttributes(Element* el);
+
 private:
   std::string name;
   std::map <std::string, std::string> attributes;
   std::vector <std::string> data_lines;
-  std::vector <Element*> children;
-  std::vector <std::string> attribute_key;
+  std::vector <Element_ptr> children;
   Element *parent;
   unsigned int element_index;
+  std::string file_name;
+  int line_number;
   typedef std::map <std::string, std::map <std::string, double> > tMapConvert;
   static tMapConvert convert;
   static bool converterIsInitialized;
-  double GaussianRandomNumber(void);
 };
 
 } // namespace JSBSim

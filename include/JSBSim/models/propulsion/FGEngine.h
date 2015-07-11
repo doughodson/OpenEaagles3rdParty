@@ -47,15 +47,13 @@ INCLUDES
 #include <string>
 
 #include "math/FGModelFunctions.h"
-#include "input_output/FGXMLFileRead.h"
-#include "input_output/FGXMLElement.h"
 #include "math/FGColumnVector3.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_ENGINE "$Id: FGEngine.h,v 1.36 2012/07/29 12:04:09 bcoconni Exp $"
+#define ID_ENGINE "$Id: FGEngine.h,v 1.44 2015/03/28 14:49:02 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -113,14 +111,14 @@ CLASS DOCUMENTATION
   documentation for engine and thruster classes.
 </pre>     
     @author Jon S. Berndt
-    @version $Id: FGEngine.h,v 1.36 2012/07/29 12:04:09 bcoconni Exp $
+    @version $Id: FGEngine.h,v 1.44 2015/03/28 14:49:02 bcoconni Exp $
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CLASS DECLARATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-class FGEngine : public FGModelFunctions, public FGXMLFileRead
+class FGEngine : public FGModelFunctions
 {
 public:
   struct Inputs {
@@ -143,22 +141,22 @@ public:
     FGColumnVector3 AeroUVW;
     FGColumnVector3 AeroPQR;
     FGColumnVector3 PQR;
-    vector <double> ThrottleCmd;
-    vector <double> MixtureCmd;
-    vector <double> ThrottlePos;
-    vector <double> MixturePos;
-    vector <double> PropAdvance;
-    vector <bool> PropFeather;
+    std::vector <double> ThrottleCmd;
+    std::vector <double> MixtureCmd;
+    std::vector <double> ThrottlePos;
+    std::vector <double> MixturePos;
+    std::vector <double> PropAdvance;
+    std::vector <bool> PropFeather;
     double TotalDeltaT;
   };
 
-  FGEngine(FGFDMExec* exec, Element* el, int engine_number, struct Inputs& input);
+  FGEngine(FGFDMExec* exec, int engine_number, struct Inputs& input);
   virtual ~FGEngine();
 
   enum EngineType {etUnknown, etRocket, etPiston, etTurbine, etTurboprop, etElectric};
 
-  EngineType             GetType(void) const { return Type; }
-  virtual const string&  GetName(void) const { return Name; }
+  EngineType GetType(void) const { return Type; }
+  virtual const std::string&  GetName(void) const { return Name; }
 
   // Engine controls
   virtual double  GetThrottleMin(void) const { return MinThrottle; }
@@ -168,7 +166,7 @@ public:
   virtual double getFuelFlow_gph () const {return FuelFlow_gph;}
   virtual double getFuelFlow_pph () const {return FuelFlow_pph;}
   virtual double GetFuelFlowRate(void) const {return FuelFlowRate;}
-  virtual double GetFuelFlowRateGPH(void) const {return FuelFlowRate*3600/6.02;}
+  virtual double GetFuelFlowRateGPH(void) const {return FuelFlowRate*3600/FuelDensity;}
   virtual double GetFuelUsedLbs(void) const {return FuelUsedLbs;}
   virtual bool   GetStarved(void) const { return Starved; }
   virtual bool   GetRunning(void) const { return Running; }
@@ -178,15 +176,16 @@ public:
   virtual void SetStarved(void)    { Starved = true; }
 
   virtual void SetRunning(bool bb) { Running=bb; }
-  virtual void SetName(const string& name) { Name = name; }
+  virtual void SetName(const std::string& name) { Name = name; }
   virtual void SetFuelFreeze(bool f) { FuelFreeze = f; }
+  virtual void SetFuelDensity(double d) { FuelDensity = d; }
 
   virtual void SetStarter(bool s) { Starter = s; }
 
   virtual int InitRunning(void){ return 1; }
 
   /** Resets the Engine parameters to the initial conditions */
-  void ResetToIC(void);
+  virtual void ResetToIC(void);
 
   /** Calculates the thrust of the engine, and other engine functions. */
   virtual void Calculate(void) = 0;
@@ -209,11 +208,11 @@ public:
   virtual const FGColumnVector3& GetBodyForces(void);
   virtual const FGColumnVector3& GetMoments(void);
 
-  bool LoadThruster(Element *el);
+  void LoadThruster(Element *el);
   FGThruster* GetThruster(void) const {return Thruster;}
 
   unsigned int GetSourceTank(unsigned int i) const;
-  unsigned int GetNumSourceTanks() const {return SourceTanks.size();}
+  size_t GetNumSourceTanks() const {return SourceTanks.size();}
 
   virtual std::string GetEngineLabels(const std::string& delimiter) = 0;
   virtual std::string GetEngineValues(const std::string& delimiter) = 0;
@@ -252,12 +251,14 @@ protected:
   double FuelFlow_gph;
   double FuelFlow_pph;
   double FuelUsedLbs;
+  double FuelDensity;
 
   FGFDMExec*      FDMExec;
   FGThruster*     Thruster;
 
   std::vector <int> SourceTanks;
 
+  virtual bool Load(FGFDMExec *exec, Element *el);
   void Debug(int from);
 };
 }

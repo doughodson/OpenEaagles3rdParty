@@ -47,7 +47,6 @@ SENTRY
 INCLUDES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#include "input_output/FGXMLFileRead.h"
 #include "math/FGLocation.h"
 #include "math/FGQuaternion.h"
 
@@ -55,7 +54,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_INITIALCONDITION "$Id: FGInitialCondition.h,v 1.36 2013/01/19 14:19:43 bcoconni Exp $"
+#define ID_INITIALCONDITION "$Id: FGInitialCondition.h,v 1.43 2015/03/28 14:49:01 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -67,6 +66,8 @@ class FGFDMExec;
 class FGMatrix33;
 class FGColumnVector3;
 class FGAtmosphere;
+class FGPropertyManager;
+class Element;
 
 typedef enum { setvt, setvc, setve, setmach, setuvw, setned, setvg } speedset;
 typedef enum { setasl, setagl} altitudeset;
@@ -166,6 +167,7 @@ CLASS DOCUMENTATION
    - mach (mach)
    - vground (ground speed, ft/sec)
    - running (-1 for all engines, 0 for no engines, 1 ... n for specific engines)
+   - trim (0 for no trim, 1 for ground trim)
 
    <h3>Properties</h3>
    @property ic/vc-kts (read/write) Calibrated airspeed initial condition in knots
@@ -216,14 +218,14 @@ CLASS DOCUMENTATION
    @property ic/r-rad_sec (read/write) Yaw rate initial condition in radians/second
 
    @author Tony Peden
-   @version "$Id: FGInitialCondition.h,v 1.36 2013/01/19 14:19:43 bcoconni Exp $"
+   @version "$Id: FGInitialCondition.h,v 1.43 2015/03/28 14:49:01 bcoconni Exp $"
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CLASS DECLARATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-class FGInitialCondition : public FGJSBBase, public FGXMLFileRead
+class FGInitialCondition : public FGJSBBase
 {
 public:
   /// Constructor
@@ -650,17 +652,18 @@ public:
       @param rstname The name of an initial conditions file
       @param useStoredPath true if the stored path to the IC file should be used
       @return true if successful */
-  bool Load(string rstname, bool useStoredPath = true );
+  bool Load(std::string rstname, bool useStoredPath = true );
 
-  /** Get the number of engines running
-   */
-  unsigned int GetNumEnginesRunning(void) const
-  { return (unsigned int)enginesRunning.size(); }
+  /** Is an engine running ?
+      @param index of the engine to be checked
+      @return true if the engine is running. */
+  bool IsEngineRunning(unsigned int n) const { return (enginesRunning & (1 << n)) != 0; }
+  
+  /** Does initialization file call for trim ?
+      @return true if initialization file (version 1) called for trim. */
+  bool NeedTrim(void) const { return needTrim == 0 ? false : true; }
 
-  /** Gets the running engine identification
-      @param engine index of running engine instance
-      @return the identification of running engine instance requested */
-  int GetEngineRunning(unsigned int engine) const { return enginesRunning[engine]; }
+  void bind(FGPropertyManager* pm);
 
 private:
   FGColumnVector3 vUVW_NED;
@@ -676,14 +679,14 @@ private:
 
   speedset lastSpeedSet;
   altitudeset lastAltitudeSet;
-  vector<int> enginesRunning;
+  unsigned int enginesRunning;
+  int needTrim;
 
   FGFDMExec *fdmex;
-  FGPropertyManager *PropertyManager;
   FGAtmosphere* Atmosphere;
 
-  bool Load_v1(void);
-  bool Load_v2(void);
+  bool Load_v1(Element* document);
+  bool Load_v2(Element* document);
 
   void InitializeIC(void);
   void SetEulerAngleRadIC(int idx, double angle);
@@ -694,7 +697,6 @@ private:
   double GetBodyVelFpsIC(int idx) const;
   void calcAeroAngles(const FGColumnVector3& _vt_BODY);
   void calcThetaBeta(double alfa, const FGColumnVector3& _vt_NED);
-  void bind(void);
   void Debug(int from);
 };
 }

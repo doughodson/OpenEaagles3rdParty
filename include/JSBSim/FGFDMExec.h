@@ -44,10 +44,8 @@ INCLUDES
 #include <vector>
 #include <string>
 
-#include "initialization/FGTrim.h"
 #include "FGJSBBase.h"
 #include "input_output/FGPropertyManager.h"
-#include "input_output/FGXMLFileRead.h"
 #include "models/FGPropagate.h"
 #include "math/FGColumnVector3.h"
 #include "models/FGOutput.h"
@@ -56,7 +54,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_FDMEXEC "$Id: FGFDMExec.h,v 1.82 2013/01/26 17:06:49 bcoconni Exp $"
+#define ID_FDMEXEC "$Id: FGFDMExec.h,v 1.95 2015/02/07 17:52:36 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -80,6 +78,7 @@ class FGInertial;
 class FGInput;
 class FGPropulsion;
 class FGMassBalance;
+class FGTrim;
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CLASS DOCUMENTATION
@@ -179,18 +178,18 @@ CLASS DOCUMENTATION
                                 property actually maps toa function call of DoTrim().
 
     @author Jon S. Berndt
-    @version $Revision: 1.82 $
+    @version $Revision: 1.95 $
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CLASS DECLARATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-class FGFDMExec : public FGJSBBase, public FGXMLFileRead
+class FGFDMExec : public FGJSBBase
 {
   struct childData {
     FGFDMExec* exec;
-    string info;
+    std::string info;
     FGColumnVector3 Loc;
     FGColumnVector3 Orient;
     bool mated;
@@ -222,21 +221,28 @@ public:
   /// Default destructor
   ~FGFDMExec();
 
-  // This list of enums is very important! The order in which models are listed here
-  // determines the order of execution of the models.
+  // This list of enums is very important! The order in which models are listed
+  // here determines the order of execution of the models.
+  //
+  // There are some conditions that need to be met :
+  // 1. FCS can request mass geometry changes via the inertia/pointmass-*
+  //    properties so it must be executed before MassBalance
+  // 2. MassBalance must be executed before Propulsion, Aerodynamics,
+  //    GroundReactions, ExternalReactions and BuoyantForces to ensure that
+  //    their moments are computed with the updated CG position.
   enum eModels { ePropagate=0,
                  eInput,
                  eInertial,
                  eAtmosphere,
                  eWinds,
-                 eAuxiliary,
                  eSystems,
+                 eMassBalance,
+                 eAuxiliary,
                  ePropulsion,
                  eAerodynamics,
                  eGroundReactions,
                  eExternalReactions,
                  eBuoyantForces,
-                 eMassBalance,
                  eAircraft,
                  eAccelerations,
                  eOutput,
@@ -244,19 +250,6 @@ public:
 
   /** Unbind all tied JSBSim properties. */
   void Unbind(void) {instance->Unbind();}
-
-  /** This routine places a model into the runlist at the specified rate. The
-      "rate" is not really a clock rate. It represents how many calls to the
-      FGFDMExec::Run() method must be made before the model is executed. A
-      value of 1 means that the model will be executed for each call to the
-      exec's Run() method. A value of 5 means that the model will only be
-      executed every 5th call to the exec's Run() method. Use of a rate other than
-      one is at this time not recommended.
-      @param model A pointer to the model being scheduled.
-      @param rate The rate at which to execute the model as described above.
-                  Default is every frame (rate=1).
-      @return Currently returns 0 always. */
-  void Schedule(FGModel* model, int rate=1);
 
   /** This function executes each scheduled model in succession.
       @return true if successful, false if sim should be ended  */
@@ -291,8 +284,9 @@ public:
       @param addModelToPath set to true to add the model name to the
       AircraftPath, defaults to true
       @return true if successful */
-  bool LoadModel(const string& AircraftPath, const string& EnginePath, const string& SystemsPath,
-                 const string& model, bool addModelToPath = true);
+  bool LoadModel(const std::string& AircraftPath, const std::string& EnginePath,
+                 const std::string& SystemsPath, const std::string& model,
+                 bool addModelToPath = true);
 
   /** Loads an aircraft model.  The paths to the aircraft and engine
       config file directories must be set prior to calling this.  See
@@ -304,7 +298,7 @@ public:
       @param addModelToPath set to true to add the model name to the
       AircraftPath, defaults to true
       @return true if successful*/
-  bool LoadModel(const string& model, bool addModelToPath = true);
+  bool LoadModel(const std::string& model, bool addModelToPath = true);
 
   /** Loads a script
       @param Script The full path name and file name for the script to be loaded.
@@ -316,23 +310,24 @@ public:
                       the file specified in the script will be used. If an initialization file 
                       is not given in either place, an error will result.
       @return true if successfully loads; false otherwise. */
-  bool LoadScript(const string& Script, double deltaT=0.0, const string initfile="");
+  bool LoadScript(const std::string& Script, double deltaT=0.0,
+                  const std::string initfile="");
 
   /** Sets the path to the engine config file directories.
       @param path path to the directory under which engine config
       files are kept, for instance "engine"  */
-  bool SetEnginePath(const string& path)   { EnginePath = RootDir + path; return true; }
+  bool SetEnginePath(const std::string& path)   { EnginePath = RootDir + path; return true; }
 
   /** Sets the path to the aircraft config file directories.
       @param path path to the aircraft directory. For instance:
       "aircraft". Under aircraft, then, would be directories for various
       modeled aircraft such as C172/, x15/, etc.  */
-  bool SetAircraftPath(const string& path) { AircraftPath = RootDir + path; return true; }
+  bool SetAircraftPath(const std::string& path) { AircraftPath = RootDir + path; return true; }
   
   /** Sets the path to the systems config file directories.
       @param path path to the directory under which systems config
       files are kept, for instance "systems"  */
-  bool SetSystemsPath(const string& path)   { SystemsPath = RootDir + path; return true; }
+  bool SetSystemsPath(const std::string& path)   { SystemsPath = RootDir + path; return true; }
   
   /// @name Top-level executive State and Model retrieval mechanism
   ///@{
@@ -381,40 +376,34 @@ public:
   ///@}
 
   /// Retrieves the engine path.
-  const string& GetEnginePath(void)    {return EnginePath;}
+  const std::string& GetEnginePath(void)    {return EnginePath;}
   /// Retrieves the aircraft path.
-  const string& GetAircraftPath(void)  {return AircraftPath;}
+  const std::string& GetAircraftPath(void)  {return AircraftPath;}
   /// Retrieves the systems path.
-  const string& GetSystemsPath(void)   {return SystemsPath;}
+  const std::string& GetSystemsPath(void)   {return SystemsPath;}
   /// Retrieves the full aircraft path name.
-  const string& GetFullAircraftPath(void) {return FullAircraftPath;}
+  const std::string& GetFullAircraftPath(void) {return FullAircraftPath;}
 
   /** Retrieves the value of a property.
       @param property the name of the property
       @result the value of the specified property */
-  inline double GetPropertyValue(const string& property)
+  inline double GetPropertyValue(const std::string& property)
   { return instance->GetNode()->GetDouble(property); }
 
   /** Sets a property value.
       @param property the property to be set
       @param value the value to set the property to */
-  inline void SetPropertyValue(const string& property, double value) {
+  inline void SetPropertyValue(const std::string& property, double value) {
     instance->GetNode()->SetDouble(property, value);
   }
 
   /// Returns the model name.
-  const string& GetModelName(void) const { return modelName; }
-/*
-  /// Returns the current time.
-  double GetSimTime(void);
+  const std::string& GetModelName(void) const { return modelName; }
 
-  /// Returns the current frame time (delta T).
-  double GetDeltaT(void);
-*/  
   /// Returns a pointer to the property manager object.
   FGPropertyManager* GetPropertyManager(void);
   /// Returns a vector of strings representing the names of all loaded models (future)
-  vector <string> EnumerateFDMs(void);
+  std::vector <std::string> EnumerateFDMs(void);
   /// Gets the number of child FDMs.
   int GetFDMCount(void) const {return (int)ChildFDMList.size();}
   /// Gets a particular child FDM.
@@ -437,7 +426,7 @@ public:
       be logged.
       @param fname the filename of an output directives file.
     */
-  bool SetOutputDirectives(const string& fname)
+  bool SetOutputDirectives(const std::string& fname)
   {return Output->SetDirectivesFile(RootDir + fname);}
 
   /** Forces the specified output object to print its items once */
@@ -447,14 +436,16 @@ public:
   void SetLoggingRate(double rate) { Output->SetRate(rate); }
 
   /** Sets (or overrides) the output filename
+      @param n index of file
       @param fname the name of the file to output data to
       @return true if successful, false if there is no output specified for the flight model */
-  bool SetOutputFileName(const string& fname) { return Output->SetOutputName(0, fname); }
+  bool SetOutputFileName(const int n, const std::string& fname) { return Output->SetOutputName(n, fname); }
 
   /** Retrieves the current output filename.
-      @return the name of the output file for the first output specified by the flight model.
+      @param n index of file
+      @return the name of the output file for the output specified by the flight model.
               If none is specified, the empty string is returned. */
-  string GetOutputFileName(void) const { return Output->GetOutputName(0); }
+  std::string GetOutputFileName(int n) const { return Output->GetOutputName(n); }
 
   /** Executes trimming in the selected mode.
   *   @param mode Specifies how to trim:
@@ -487,14 +478,18 @@ public:
   void Resume(void) {holding = false;}
   /// Returns true if the simulation is Holding (i.e. simulation time is not moving).
   bool Holding(void) {return holding;}
-  /// Resets the initial conditions object and prepares the simulation to run again.
-  void ResetToInitialConditions(void);
+  /** Resets the initial conditions object and prepares the simulation to run
+      again. If mode is set to 1 the output instances will take special actions
+      such as closing the current output file and open a new one with a
+      different name.
+      @param mode Sets the reset mode.*/
+  void ResetToInitialConditions(int mode);
   /// Sets the debug level.
   void SetDebugLevel(int level) {debug_lvl = level;}
 
   struct PropertyCatalogStructure {
     /// Name of the property.
-    string base_string;
+    std::string base_string;
     /// The node for the property.
     FGPropertyNode_ptr node;
   };
@@ -511,19 +506,22 @@ public:
   *   @param check The string to search for in the property catalog.
   *   @return the carriage-return-delimited string containing all matching strings
   *               in the catalog.  */
-  string QueryPropertyCatalog(const string& check);
+  std::string QueryPropertyCatalog(const std::string& check);
 
   // Print the contents of the property catalog for the loaded aircraft.
   void PrintPropertyCatalog(void);
 
-  vector<string>& GetPropertyCatalog(void) {return PropertyCatalog;}
+  // Print the simulation configuration
+  void PrintSimulationConfiguration(void) const;
+
+  std::vector<std::string>& GetPropertyCatalog(void) {return PropertyCatalog;}
 
   void SetTrimStatus(bool status){ trim_status = status; }
   bool GetTrimStatus(void) const { return trim_status; }
   void SetTrimMode(int mode){ ta_mode = mode; }
   int GetTrimMode(void) const { return ta_mode; }
 
-  string GetPropulsionTankReport();
+  std::string GetPropulsionTankReport();
 
   /// Returns the cumulative simulation time in seconds.
   double GetSimTime(void) const { return sim_time; }
@@ -532,17 +530,10 @@ public:
   double GetDeltaT(void) const {return dT;}
 
   /// Suspends the simulation and sets the delta T to zero.
-  void SuspendIntegration(void) {
-	  if (dT != 0.0) { // check if already suspended
-		  saved_dT = dT;
-		  dT = 0.0;
-	  }
-  }
+  void SuspendIntegration(void) {saved_dT = dT; dT = 0.0;}
 
   /// Resumes the simulation by resetting delta T to the correct value.
-  void ResumeIntegration(void)  {
-	  dT = saved_dT;
-  }
+  void ResumeIntegration(void)  {dT = saved_dT;}
 
   /** Returns the simulation suspension state.
       @return true if suspended, false if executing  */
@@ -553,6 +544,7 @@ public:
       @return the current simulation time.      */
   double Setsim_time(double cur_time) {
     sim_time = cur_time;
+    GetGroundCallback()->SetTime(sim_time);
     return sim_time;
   }
 
@@ -562,17 +554,18 @@ public:
 
   /** Sets the root directory where JSBSim starts looking for its system directories.
       @param rootDir the string containing the root directory. */
-  void SetRootDir(const string& rootDir) {RootDir = rootDir;}
+  void SetRootDir(const std::string& rootDir) {RootDir = rootDir;}
 
   /** Retrieves the Root Directory.
       @return the string representing the root (base) JSBSim directory. */
-  const string& GetRootDir(void) const {return RootDir;}
+  const std::string& GetRootDir(void) const {return RootDir;}
 
   /** Increments the simulation time if not in Holding mode. The Frame counter
       is also incremented.
       @return the new simulation time.     */
   double IncrTime(void) {
     if (!holding) sim_time += dT;
+    GetGroundCallback()->SetTime(sim_time);
     Frame++;
     return sim_time;
   }
@@ -588,6 +581,7 @@ private:
   int Error;
   unsigned int Frame;
   unsigned int IdFDM;
+  int disperse;
   unsigned short Terminate;
   double dT;
   double saved_dT;
@@ -598,14 +592,14 @@ private:
   bool Constructing;
   bool modelLoaded;
   bool IsChild;
-  string modelName;
-  string AircraftPath;
-  string FullAircraftPath;
-  string EnginePath;
-  string SystemsPath;
-  string CFGVersion;
-  string Release;
-  string RootDir;
+  std::string modelName;
+  std::string AircraftPath;
+  std::string FullAircraftPath;
+  std::string EnginePath;
+  std::string SystemsPath;
+  std::string CFGVersion;
+  std::string Release;
+  std::string RootDir;
 
   // Standard Model pointers - shortcuts for internal executive use only.
   FGPropagate* Propagate;
@@ -626,6 +620,7 @@ private:
 
   bool trim_status;
   int ta_mode;
+  unsigned int ResetMode;
 
   FGScript*           Script;
   FGInitialCondition* IC;
@@ -638,20 +633,20 @@ private:
   // The FDM counter is used to give each child FDM an unique ID. The root FDM has the ID 0
   unsigned int*      FDMctr;
 
-  vector <string> PropertyCatalog;
-  vector <childData*> ChildFDMList;
-  vector <FGModel*> Models;
+  std::vector <std::string> PropertyCatalog;
+  std::vector <childData*> ChildFDMList;
+  std::vector <FGModel*> Models;
 
   bool ReadFileHeader(Element*);
   bool ReadChild(Element*);
   bool ReadPrologue(Element*);
-  void ResetToInitialConditions(int mode);
   void SRand(int sr);
   void LoadInputs(unsigned int idx);
   void LoadPlanetConstants(void);
   void LoadModelConstants(void);
   bool Allocate(void);
   bool DeAllocate(void);
+  int GetDisperse(void) const {return disperse;}
 
   void Debug(int from);
 };

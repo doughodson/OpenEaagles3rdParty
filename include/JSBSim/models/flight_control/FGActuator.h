@@ -38,13 +38,12 @@ INCLUDES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
 #include "FGFCSComponent.h"
-#include "input_output/FGXMLElement.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_ACTUATOR "$Id: FGActuator.h,v 1.15 2013/01/26 17:06:50 bcoconni Exp $"
+#define ID_ACTUATOR "$Id: FGActuator.h,v 1.20 2015/02/27 20:36:47 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -120,7 +119,7 @@ Example:
 @endcode
 
 @author Jon S. Berndt
-@version $Revision: 1.15 $
+@version $Revision: 1.20 $
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -139,6 +138,7 @@ public:
       It calls private functions if needed to perform the hysteresis, lag,
       limiting, etc. functions. */
   bool Run (void);
+  void ResetPastStates(void);
 
   // these may need to have the bool argument replaced with a double
   /** This function fails the actuator to zero. The motion to zero
@@ -154,14 +154,10 @@ public:
   bool IsSaturated(void) const {return saturated;}
   
 private:
-  double span;
+  //double span;
   double bias;
-  bool rate_limited;
-  double rate_limit;
-  double rate_limit_incr;
-  double rate_limit_decr;
-  FGPropertyNode_ptr rate_limit_incr_prop;
-  FGPropertyNode_ptr rate_limit_decr_prop;
+  FGParameter* rate_limit_incr;
+  FGParameter* rate_limit_decr;
   double hysteresis_width;
   double deadband_width;
   double lag;

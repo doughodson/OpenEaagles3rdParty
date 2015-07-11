@@ -49,7 +49,7 @@ INCLUDES
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_PROPAGATE "$Id: FGPropagate.h,v 1.74 2013/01/19 13:49:37 bcoconni Exp $"
+#define ID_PROPAGATE "$Id: FGPropagate.h,v 1.81 2014/05/17 15:15:53 jberndt Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -93,7 +93,7 @@ CLASS DOCUMENTATION
     @endcode
 
     @author Jon S. Berndt, Mathias Froehlich, Bertrand Coconnier
-    @version $Id: FGPropagate.h,v 1.74 2013/01/19 13:49:37 bcoconni Exp $
+    @version $Id: FGPropagate.h,v 1.81 2014/05/17 15:15:53 jberndt Exp $
   */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -159,7 +159,7 @@ public:
 
   /// These define the indices use to select the various integrators.
   enum eIntegrateType {eNone = 0, eRectEuler, eTrapezoidal, eAdamsBashforth2,
-                       eAdamsBashforth3, eAdamsBashforth4, eBuss1, eBuss2, eLocalLinearization};
+                       eAdamsBashforth3, eAdamsBashforth4, eBuss1, eBuss2, eLocalLinearization, eAdamsBashforth5};
 
   /** Initializes the FGPropagate class after instantiation and prior to first execution.
       The base class FGModel::InitModel is called first, initializing pointers to the
@@ -247,6 +247,23 @@ public:
   */
   const FGColumnVector3& GetEuler(void) const { return VState.qAttitudeLocal.GetEuler(); }
 
+  /** Retrieves the Euler angles (in degrees) that define the vehicle orientation.
+      Extracts the Euler angles from the quaternion that stores the orientation
+      in the Local frame. The order of rotation used is Yaw-Pitch-Roll. The
+      vector returned is represented by an FGColumnVector reference. The vector
+      for the Euler angles is organized (Phi, Theta, Psi). The vector
+      is 1-based, so that the first element can be retrieved using the "()" operator.
+      In other words, the returned vector item with subscript (1) is Phi.
+      Various convenience enumerators are defined in FGJSBBase. The relevant
+      enumerators for the vector returned by this call are, ePhi=1, eTht=2, ePsi=3.
+      units degrees
+      @return The Euler angle vector, where the first item in the
+              vector is the angle about the X axis, the second is the
+              angle about the Y axis, and the third item is the angle
+              about the Z axis (Phi, Theta, Psi).
+  */
+  FGColumnVector3 GetEulerDeg(void) const;
+
   /** Retrieves a body frame velocity component.
       Retrieves a body frame velocity component. The velocity returned is
       extracted from the vUVW vector (an FGColumnVector). The vector for the
@@ -277,17 +294,28 @@ public:
   */
   double GetInertialVelocityMagnitude(void) const { return VState.vInertialVelocity.Magnitude(); }
 
+  /** Retrieves the total local NED velocity in ft/sec.
+  */
+  double GetNEDVelocityMagnitude(void) const { return VState.vUVW.Magnitude(); }
+
   /** Retrieves the inertial velocity vector in ft/sec.
   */
   const FGColumnVector3& GetInertialVelocity(void) const { return VState.vInertialVelocity; }
+  double GetInertialVelocity(int i) const { return VState.vInertialVelocity(i); }
 
   /** Retrieves the inertial position vector.
   */
   const FGColumnVector3& GetInertialPosition(void) const { return VState.vInertialPosition; }
+  double GetInertialPosition(int i) const { return VState.vInertialPosition(i); }
 
   /** Calculates and retrieves the velocity vector relative to the earth centered earth fixed (ECEF) frame.
   */
   FGColumnVector3 GetECEFVelocity(void) const {return Tb2ec * VState.vUVW; }
+
+  /** Calculates and retrieves the velocity vector relative to the earth centered earth fixed (ECEF) frame
+      for a particular axis.
+  */
+  double GetECEFVelocity(int idx) const {return (Tb2ec * VState.vUVW)(idx); }
 
   /** Returns the current altitude above sea level.
       This function returns the altitude above sea level.
@@ -341,6 +369,18 @@ public:
   */
   double GetEuler(int axis) const { return VState.qAttitudeLocal.GetEuler(axis); }
 
+  /** Retrieves a vehicle Euler angle component in degrees.
+      Retrieves an Euler angle (Phi, Theta, or Psi) from the quaternion that
+      stores the vehicle orientation relative to the Local frame. The order of
+      rotations used is Yaw-Pitch-Roll. The Euler angle with subscript (1) is
+      Phi. Various convenience enumerators are defined in FGJSBBase. The
+      relevant enumerators for the Euler angle returned by this call are,
+      ePhi=1, eTht=2, ePsi=3 (e.g. GetEuler(eTht) returns Theta).
+      units degrees
+      @return An Euler angle in degrees.
+  */
+  double GetEulerDeg(int axis) const { return VState.qAttitudeLocal.GetEuler(axis) * radtodeg; }
+
   /** Retrieves the cosine of a vehicle Euler angle component.
       Retrieves the cosine of an Euler angle (Phi, Theta, or Psi) from the
       quaternion that stores the vehicle orientation relative to the Local frame.
@@ -390,6 +430,7 @@ public:
 
   double GetTerrainElevation(void) const { return GetLocalTerrainRadius() - VState.vLocation.GetSeaLevelRadius(); }
   double GetDistanceAGL(void)  const;
+  double GetDistanceAGLKm(void)  const;
   double GetRadius(void) const {
       if (VState.vLocation.GetRadius() == 0) return 1.0;
       else return VState.vLocation.GetRadius();
@@ -401,10 +442,12 @@ public:
   double GetGeodLatitudeDeg(void) const { return VState.vLocation.GetGeodLatitudeDeg(); }
 
   double GetGeodeticAltitude(void) const { return VState.vLocation.GetGeodAltitude(); }
+  double GetGeodeticAltitudeKm(void) const { return VState.vLocation.GetGeodAltitude()*0.0003048; }
 
   double GetLongitudeDeg(void) const { return VState.vLocation.GetLongitudeDeg(); }
   double GetLatitudeDeg(void) const { return VState.vLocation.GetLatitudeDeg(); }
   const FGLocation& GetLocation(void) const { return VState.vLocation; }
+  double GetLocation(int i) const { return VState.vLocation(i); }
 
   /** Retrieves the local-to-body transformation matrix.
       The quaternion class, being the means by which the orientation of the
@@ -522,6 +565,7 @@ public:
   void SetSeaLevelRadius(double tt);
   void SetTerrainElevation(double tt);
   void SetDistanceAGL(double tt);
+  void SetDistanceAGLKm(double tt);
 
   void SetInitialState(const FGInitialCondition *);
   void SetLocation(const FGLocation& l);
@@ -560,7 +604,6 @@ private:
   struct VehicleState VState;
 
   FGColumnVector3 vVel;
-  FGColumnVector3 vLocation;
   FGMatrix33 Tec2b;
   FGMatrix33 Tb2ec;
   FGMatrix33 Tl2b;   // local to body frame matrix copy for immediate local use

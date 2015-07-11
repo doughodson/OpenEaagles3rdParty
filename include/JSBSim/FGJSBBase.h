@@ -51,12 +51,13 @@ using std::max;
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846
 #endif
+#define IDENT(a,b)	 static const char* const (a)[] = {b,(a)[0]}
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DEFINITIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-#define ID_JSBBASE "$Id: FGJSBBase.h,v 1.36 2012/03/25 11:05:36 bcoconni Exp $"
+#define ID_JSBBASE "$Id: FGJSBBase.h,v 1.41 2014/09/03 17:35:04 bcoconni Exp $"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 FORWARD DECLARATIONS
@@ -72,7 +73,7 @@ CLASS DOCUMENTATION
 *   This class provides universal constants, utility functions, messaging
 *   functions, and enumerated constants to JSBSim.
     @author Jon S. Berndt
-    @version $Id: FGJSBBase.h,v 1.36 2012/03/25 11:05:36 bcoconni Exp $
+    @version $Id: FGJSBBase.h,v 1.41 2014/09/03 17:35:04 bcoconni Exp $
 */
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -256,6 +257,13 @@ public:
     return kelvin - 273.15;
   }
 
+  /** Converts from feet to meters
+  *   @param measure The length in feet.
+  *   @return The length in meters. */
+  static double FeetToMeters (double measure) {
+    return measure*0.3048;
+  }
+
   /** Calculate the calibrated airspeed from the Mach number. It uses the
   *   Rayleigh formula for supersonic speeds (See "Introduction to Aerodynamics
   *   of a Compressible Fluid - H.W. Liepmann, A.E. Puckett - Wiley & sons
@@ -321,6 +329,8 @@ public:
   
   static double sign(double num) {return num>=0.0?1.0:-1.0;}
 
+  static double GaussianRandomNumber(void);
+
 protected:
   static Message localMsg;
 
@@ -355,7 +365,7 @@ protected:
 
   static std::string CreateIndexedPropertyName(const std::string& Property, int index);
 
-  static double GaussianRandomNumber(void);
+  static int gaussian_random_number_phase;
 
 public:
 /// Moments L, M, N
