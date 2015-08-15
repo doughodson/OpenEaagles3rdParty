@@ -41,6 +41,8 @@ Notes
    * Visual Studio 2013 Update 4
    * Visual Studio 2015
 
+* To compile Protocol Buffers 2.6.1 with Visual Studio 2015 you need to define "_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS"
+
 Version Numbers
 ---------------
 
