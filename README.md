@@ -39,6 +39,7 @@ Notes
    * Visual Studio 2010 Service Pack #1 installed
    * Visual Studio 2012 Update 3
    * Visual Studio 2013 Update 4
+   * Visual Studio 2015
 
 Version Numbers
 ---------------
