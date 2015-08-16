@@ -41,7 +41,9 @@ Notes
    * Visual Studio 2013 Update 4
    * Visual Studio 2015
 
-* To compile Protocol Buffers 2.6.1 with Visual Studio 2015 you need to define "_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS"
+* Visual Studio 2015
+   * To compile Protocol Buffers 2.6.1, you need to define "_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS"
+   * To compile Fox GUI 1.6.49, you need to define "HAVE_VSSCANF"
 
 Version Numbers
 ---------------
