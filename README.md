@@ -36,13 +36,11 @@ Notes
 -----
 
 * Visual Studio note: All included libraries have been compiled for a multi-threaded DLL runtime library.  The libraries were compiled with:
-   * Visual Studio 2012 Update 3
-   * Visual Studio 2013 Update 4
-   * Visual Studio 2015
+   * Visual Studio 2013 update 5
+   * Visual Studio 2015 update 2
 
 * Visual Studio 2015
    * To compile Protocol Buffers 2.6.1, you need to define "_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS"
-   * To compile Fox GUI 1.6.49, you need to define "HAVE_VSSCANF"
 
 Version Numbers
 ---------------
@@ -74,7 +72,7 @@ Version Numbers
 
 * [FLTK] - version 1.3.2
 
-* [FOX] - version 1.6.49
+* [FOX] - version 1.7.55
 
 #### Networking
 * [ZeroMQ] - version 4.0.3
