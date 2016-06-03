@@ -4,38 +4,38 @@ OpenEaagles 3rd Party Libraries
 
 The most current version of OpenEaagles can be found at [www.OpenEaagles.org][1].
 
-* This package has been provided as a convenience for compiling in Windows. It contains the executables, 'include' files and static libraries.
+* This package has been provided as a convenience for compiling in Windows. It contains executables, 'include' files and static libraries.
 
 Applications
 ------------
 
-* [Premake] - simple build configuration tool
+* [Premake] - build configuration tool
 
-* [mcpp] - portable C preprocessor (used as an alternative to Visual Studio C preprocessor - useful if Visual Studio is not installed on target computer)
+* [mcpp] - portable C preprocessor (can be used as an alternative to Visual Studio C preprocessor - useful if Visual Studio is not installed on target computer)
 
-* [Google Protocol buffers] compiler (see protocol buffers below)
+* [Google Protocol buffers] message compiler
 
 Libraries
 ---------
 
-* [freetype] - A Free, High-Quality, and Portable Font Engine
+* [freetype] - portable font engine
 
-* [FTGL] - A free, open source library to enable developers to use arbitrary fonts in their OpenGL applications.
+* [FTGL] - library to draw fonts in OpenGL
 
-* [freeglut] - A completely open source alternative to the OpenGL Utility Toolkit (GLUT) library.
+* [freeglut] - an alternative to the OpenGL Utility Toolkit (GLUT) library
 
 * [CIGI] - Common Image Generator Interface
 
-* [JSBSim] - The Open Source Flight Dynamics Model in C++
+* [JSBSim] - a C++-based dynamics model
 
 * [Google protocol buffers]
 
-* [ZeroMQ]
+* [ZeroMQ] - networking library
 
 Notes
 -----
 
-* Visual Studio note: All included libraries have been compiled for a multi-threaded DLL runtime library.  The libraries were compiled with:
+* Visual Studio note: All included libraries have been compiled assuming a multi-threaded DLL-based runtime library.  The libraries were compiled with:
    * Visual Studio 2013 update 5
    * Visual Studio 2015 update 2
 
