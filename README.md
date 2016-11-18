@@ -46,7 +46,7 @@ Version Numbers
 ---------------
 
 #### Build tool
-* [Premake] - version 5.0 alpha
+* [Premake] - version 5.0 alpha 10
 
 #### Graphics support
 * [freetype2] - version 2.5.0.1
