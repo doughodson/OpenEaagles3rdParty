@@ -62,6 +62,8 @@ Version Numbers
 #### Binary data storage used by data recorder
 * [Google protocol buffers] - version 2.6.1
 
+Need to define "_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS" for VS2017, otherwise, library will not compile.
+
 #### Graphical User Interface (GUI) toolkits
 * [freeglut] - version 2.8.1 - Note: The standard freeglut header file has been modified so that we link against a static library but don't specify its name in the header file.
 
