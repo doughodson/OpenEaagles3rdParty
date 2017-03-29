@@ -35,9 +35,10 @@ Libraries
 Notes
 -----
 
-* Visual Studio note: All included libraries have been compiled assuming a multi-threaded DLL-based runtime library.  The libraries were compiled with:
+* Visual Studio notes: All included libraries have been compiled assuming a multi-threaded DLL-based runtime library.  The libraries were compiled with:
    * Visual Studio 2013 update 5
    * Visual Studio 2015 update 2
+   * Visual Studio 2017 15.0.0+26228.10 (update)
 
 * Visual Studio 2015
    * To compile Protocol Buffers 2.6.1, you need to define "_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS"
@@ -46,7 +47,7 @@ Version Numbers
 ---------------
 
 #### Build tool
-* [Premake] - version 5.0 alpha 10
+* [Premake] - version 5.0 alpha 11
 
 #### Graphics support
 * [freetype2] - version 2.5.0.1
