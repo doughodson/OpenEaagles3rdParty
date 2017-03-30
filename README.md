@@ -37,10 +37,10 @@ Notes
 
 * Visual Studio notes: All included libraries have been compiled assuming a multi-threaded DLL-based runtime library.  The libraries were compiled with:
    * Visual Studio 2013 update 5
-   * Visual Studio 2015 update 2
+   * Visual Studio 2015 update 3
    * Visual Studio 2017 15.0.0+26228.10 (update)
 
-* Visual Studio 2015
+* Visual Studio 2015 & 2017
    * To compile Protocol Buffers 2.6.1, you need to define "_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS"
 
 Version Numbers
@@ -65,17 +65,19 @@ Version Numbers
 Need to define "_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS" for VS2017, otherwise, library will not compile.
 
 #### Graphical User Interface (GUI) toolkits
-* [freeglut] - version 2.8.1 - Note: The standard freeglut header file has been modified so that we link against a static library but don't specify its name in the header file.
+* [freeglut] - version 3.0.0
+
+Note: The standard freeglut header file has been modified so that we link against a static library but don't specify its name in the header file.
 
 ```
 // freeglut_std.h modifications
+#ifndef FREEGLUT_STATIC
 #define FREEGLUT_STATIC           // we do want to link to a static library
+#endif
+#ifdef FREEGLUT_LIB_PRAGMAS
 #define FREEGLUT_LIB_PRAGMAS 0    // we do not want the default libraries
+#endif
 ```
-
-* [FLTK] - version 1.3.2
-
-* [FOX] - version 1.7.55
 
 #### Networking
 * [ZeroMQ] - version 4.0.3
@@ -91,7 +93,5 @@ Need to define "_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS" for VS2017, otherwise
 [JSBSIM]: http://www.jsbsim.org
 [Google protocol buffers]: http://code.google.com/p/protobuf/
 [ZeroMQ]: http://zeromq.org/
-[FLTK]: http://www.fltk.org/
-[FOX]: http://www.fox-toolkit.org/
 [freetype2]: http://www.freetype.org/freetype2/
 
