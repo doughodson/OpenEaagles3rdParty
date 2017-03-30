@@ -4,10 +4,10 @@ OpenEaagles 3rd Party Libraries
 
 The most current version of OpenEaagles can be found at [www.OpenEaagles.org][1].
 
-* This package has been provided as a convenience for compiling in Windows. It contains executables, 'include' files and static libraries.
+* This package has been provided as a convenience for compiling in Windows. It contains executables, include files and static libraries.
 
-Applications
-------------
+Executables
+-----------
 
 * [Premake] - build configuration tool
 
@@ -35,10 +35,10 @@ Libraries
 Notes
 -----
 
-* Visual Studio notes: All included libraries have been compiled assuming a multi-threaded DLL-based runtime library.  The libraries were compiled with:
+* Visual Studio: All libraries have been compiled assuming a multi-threaded DLL-based runtime library.  The supplied libraries were compiled with:
    * Visual Studio 2013 update 5
    * Visual Studio 2015 update 3
-   * Visual Studio 2017 15.0.0+26228.10 (update)
+   * Visual Studio 2017 15.0.0+26228.10
 
 * Visual Studio 2015 & 2017
    * To compile Protocol Buffers 2.6.1, you need to define "_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS"
