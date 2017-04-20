@@ -80,7 +80,7 @@ Note: The standard freeglut header file has been modified so that we link agains
 ```
 
 #### Networking
-* [ZeroMQ] - version 4.0.3
+* [ZeroMQ] - version 4.2.1
 
 [1]: http://www.OpenEaagles.org
 [Premake]: http://industriousone.com/premake
